@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}О нас{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">О нас</h1>
+        <div class="card shadow-lg border-0 p-4">
+            <div class="card-body">
+                <p>{{ info.description }}</p>
+                <ul class="list-unstyled mt-3">
+                    {% if info.email %}
+                        <p>
+                            Почта для связи: <u style="color: blue">{{ info.email }}</u>
+                        </p>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

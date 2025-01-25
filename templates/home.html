@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+    <div class="container text-center mt-5">
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body">
+                        <h2 class="bi bi-people" style="font-size: 40px; color: #007bff"> О нас </h2>
+                        <p class="card-text">Узнайте больше о нас и проекте</p>
+                        <a href="{% url 'about_us' %}" class="btn btn-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body">
+                        <h2 class="bi bi-box-seam" style="font-size: 40px; color: #007bff"> FAKE DB </h2>
+                        <p class="card-text">Генерация случайных данных в базе данных</p>
+                        <a href="#" class="btn btn-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
