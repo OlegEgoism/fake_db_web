@@ -1,0 +1,31 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    border-bottom: 3px solid #007bff;
+}
+
+footer p {
+    font-size: 14px;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.info-size {
+    font-size: 50px;
+    color: blue
+
+}
+

@@ -7,7 +7,11 @@
         <h1 class="text-center mb-4">О нас</h1>
         <div class="card shadow-lg border-0 p-4">
             <div class="card-body">
-                <p>{{ info.description }}</p>
+                {% if info.description %}
+                    <p>{{ info.description }}</p>
+                {% else %}
+                    <p>Все гениальное просто...</p>
+                {% endif %}
                 <ul class="list-unstyled mt-3">
                     {% if info.email %}
                         <p>

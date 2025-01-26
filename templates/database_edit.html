@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редактирование проекта: {{ database.db_project }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Редактирование проекта: {{ database.db_project }}</h1>
+
+        <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Пожалуйста, исправьте ошибки в форме.</strong>
+                        </div>
+                    {% endif %}
+
+                    <div class="row mb-3">
+                        <label for="id_data_base_name" class="col-sm-4 col-form-label text-end">База данных:</label>
+                        <div class="col-sm-8">
+                            {{ form.data_base_name }}
+                            {% if form.data_base_name.errors %}
+                                <div class="text-danger">{{ form.data_base_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_db_project" class="col-sm-4 col-form-label text-end">Проект:</label>
+                        <div class="col-sm-8">
+                            {{ form.db_project }}
+                            {% if form.db_project.errors %}
+                                <div class="text-danger">{{ form.db_project.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_db_name" class="col-sm-4 col-form-label text-end">Название базы:</label>
+                        <div class="col-sm-8">
+                            {{ form.db_name }}
+                            {% if form.db_name.errors %}
+                                <div class="text-danger">{{ form.db_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_db_user" class="col-sm-4 col-form-label text-end">Пользователь:</label>
+                        <div class="col-sm-8">
+                            {{ form.db_user }}
+                            {% if form.db_user.errors %}
+                                <div class="text-danger">{{ form.db_user.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_db_password" class="col-sm-4 col-form-label text-end">Пароль:</label>
+                        <div class="col-sm-8 position-relative">
+                            <div class="input-group">
+                                {{ form.db_password }}
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                                    <i id="togglePasswordIcon" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.db_password.errors %}
+                                <div class="text-danger">{{ form.db_password.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <div class="row mb-3">
+                        <label for="id_db_host" class="col-sm-4 col-form-label text-end">Хост:</label>
+                        <div class="col-sm-8">
+                            {{ form.db_host }}
+                            {% if form.db_host.errors %}
+                                <div class="text-danger">{{ form.db_host.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_db_port" class="col-sm-4 col-form-label text-end">Порт:</label>
+                        <div class="col-sm-8">
+                            {{ form.db_port }}
+                            {% if form.db_port.errors %}
+                                <div class="text-danger">{{ form.db_port.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Сохранить</button>
+                        <a href="{% url 'database_detail' database.pk %}" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/button.js' %}"></script>
+{% endblock %}
