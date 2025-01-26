@@ -4,15 +4,17 @@ from .models import CustomUser, DataBaseUser
 
 
 class CustomUserCreationForm(UserCreationForm):
-    photo = forms.ImageField(required=False)
-    phone_number = forms.CharField(max_length=15, required=False)
+    email = forms.EmailField(required=True, label="Email")
+    photo = forms.ImageField(required=False, label="Фото")
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'phone_number', 'photo', 'password1', 'password2')
+        fields = ('username', 'email', 'photo', 'password1', 'password2')
 
 
 class DataBaseUserForm(forms.ModelForm):
+    """Редактирование данных проекта"""
+
     class Meta:
         model = DataBaseUser
         fields = ('data_base_name', 'db_project', 'db_name', 'db_user', 'db_password', 'db_host', 'db_port')
@@ -25,5 +27,3 @@ class DataBaseUserForm(forms.ModelForm):
             'db_host': forms.TextInput(attrs={'class': 'form-control'}),
             'db_port': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
-

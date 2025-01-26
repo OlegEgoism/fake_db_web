@@ -124,6 +124,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Настройки для хранения загружаемых файлов
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
@@ -133,8 +134,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'work_db.CustomUser'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
+# URL перенаправления после входа и выхода
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
-LOGIN_REDIRECT_URL = 'profile'

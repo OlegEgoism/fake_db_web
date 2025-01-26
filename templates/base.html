@@ -72,9 +72,56 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        {#                        <a class="nav-link" href="{% url 'register' %}">#}
-                        <i class="bi bi-person-plus"></i> Регистрация
-                        </a>
+                       <!-- Кнопка регистрации -->
+<button type="button" class="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#registerModal">
+    <i class="bi bi-person-plus"></i> Регистрация
+</button>
+
+<!-- Модальное окно регистрации -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Регистрация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'register' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-control" id="id_username" name="username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="id_email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_photo" class="form-label">Фото</label>
+                        <input type="file" class="form-control" id="id_photo" name="photo" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="id_password1" name="password1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">Подтверждение пароля</label>
+                        <input type="password" class="form-control" id="id_password2" name="password2" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
                     </li>
                 {% endif %}
             </ul>
@@ -115,6 +162,18 @@
 
 
 </body>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash === '#registerSuccess') {
+            let registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.hide();
+            alert('Вы успешно зарегистрированы!');
+        }
+    });
+</script>
+
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -26,6 +26,16 @@ body {
 .info-size {
     font-size: 50px;
     color: blue
-
 }
+
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
 
