@@ -1,0 +1,13 @@
+asgiref==3.8.1
+cffi==1.17.1
+cryptography==44.0.0
+Django==5.1.5
+Faker==35.0.0
+pillow==11.1.0
+psycopg2-binary==2.9.10
+pycparser==2.22
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.0
+six==1.17.0
+sqlparse==0.5.3
+typing_extensions==4.12.2
