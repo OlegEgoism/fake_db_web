@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои проекты{% endblock %}
+
+{% block content %}
+    <h2 class="text-center mb-2">Мои проекты</h2>
+    {% if projects %}
+        <div class="row">
+            {% for project in projects %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-lg border-6">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.db_project }} ({{ project.data_base_name }})</h5>
+                            <hr>
+                            <p><strong>Название базы:</strong> {{ project.db_name }}</p>
+                            <p><strong>Дата создания:</strong> {{ project.db_date_create|date:"d.m.Y - H:i" }}</p>
+                            <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-primary">Подключиться</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            У вас пока нет проектов. <a href="{% url 'create_project' %}">Создать новый</a>
+        </div>
+    {% endif %}
+    <a href="{% url 'home' %}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Назад</a>
+{% endblock %}

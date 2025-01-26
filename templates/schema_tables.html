@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Таблицы схемы {{ schema_name }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Таблицы в схеме "{{ schema_name }}"</h2>
+        <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+            <div class="card-body text-center">
+                <h5>Проект: {{ project.db_project }}</h5>
+                <hr>
+                <p><strong>База данных:</strong> {{ project.db_name }}</p>
+                <p><strong>Хост:</strong> {{ project.db_host }}</p>
+                <p><strong>Порт:</strong> {{ project.db_port }}</p>
+                <hr>
+
+                {% if error_message %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
+                    </div>
+                {% else %}
+                    <h5>Таблицы в схеме {{ schema_name }}:</h5>
+                    {% if tables %}
+                        <ul class="list-group">
+                            {% for table in tables %}
+                                <li class="list-group-item">
+                                    <i class="bi bi-table"></i>
+                                    <a href="{% url 'table_columns' project.pk schema_name table %}" class="text-decoration-none">
+                                        {{ table }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">В данной схеме таблиц не найдено.</p>
+                    {% endif %}
+                {% endif %}
+
+                <a href="{% url 'database_schemas' project.pk %}" class="btn btn-secondary mt-3">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

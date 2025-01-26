@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Колонки таблицы {{ table_name }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Колонки таблицы "{{ table_name }}"</h2>
+        <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
+            <div class="card-body text-center">
+                <h5>Проект: {{ project.db_project }}</h5>
+                <hr>
+                <p><strong>База данных:</strong> {{ project.db_name }}</p>
+                <p><strong>Схема:</strong> {{ schema_name }}</p>
+                <p><strong>Таблица:</strong> {{ table_name }}</p>
+                <p><strong>Количество записей в базе данных:</strong> {{ record_count }}</p>
+                <hr>
+
+                {% if error_message %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
+                    </div>
+                {% else %}
+                    <h5>Колонки таблицы:</h5>
+                    {% if columns %}
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Тип</th>
+                                <th>Комментарий</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for column in columns %}
+                                <tr>
+                                    <td>{{ column.0 }}</td>
+                                    <td>{{ column.1 }}</td>
+                                    <td>{{ column.2 }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">В данной таблице колонок не найдено.</p>
+                    {% endif %}
+                {% endif %}
+                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3">
+                    <i class="bi bi-database-add"></i> Сгенерировать данные
+                </a>
+
+                <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

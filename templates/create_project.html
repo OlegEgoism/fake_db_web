@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Создание проекта{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+            <h2 class="text-center mb-2">Создание нового проекта</h2>
+            <div class="card mx-auto" style="max-width: 600px;">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3 row">
+                            <label for="id_db_project" class="col-sm-4 col-form-label text-end">Название проекта:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_project }}
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="id_data_base_name" class="col-sm-4 col-form-label text-end">Выберите базу данных:</label>
+                            <div class="col-sm-8">
+                                {{ form.data_base_name }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-3 row">
+                            <label for="id_db_name" class="col-sm-4 col-form-label text-end">Название базы:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_name }}
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="id_db_user" class="col-sm-4 col-form-label text-end">Пользователь:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_user }}
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="id_db_password" class="col-sm-4 col-form-label text-end">Пароль:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_password }}
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="id_db_host" class="col-sm-4 col-form-label text-end">Хост:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_host }}
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="id_db_port" class="col-sm-4 col-form-label text-end">Порт:</label>
+                            <div class="col-sm-8">
+                                {{ form.db_port }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Создать проект</button>
+                    </form>
+                    <a href="{% url 'home' %}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Назад</a>
+                </div>
+            </div>
+    {% else %}
+        <div class="container mt-5">
+            <div class="alert alert-danger text-center">
+                Пожалуйста, <a href="{% url 'login' %}">войдите в систему</a>, чтобы создать проект.
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

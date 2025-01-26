@@ -4,7 +4,6 @@
 {% block title %}Редактирование проекта: {{ database.db_project }}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
         <h1 class="text-center mb-4">Редактирование проекта: {{ database.db_project }}</h1>
 
         <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
@@ -37,7 +36,7 @@
                             {% endif %}
                         </div>
                     </div>
-
+                    <hr>
                     <div class="row mb-3">
                         <label for="id_db_name" class="col-sm-4 col-form-label text-end">Название базы:</label>
                         <div class="col-sm-8">
@@ -101,7 +100,6 @@
                 </form>
             </div>
         </div>
-    </div>
     
     <script src="{% static 'js/button.js' %}"></script>
 {% endblock %}
