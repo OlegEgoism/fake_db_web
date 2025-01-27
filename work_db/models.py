@@ -7,7 +7,7 @@ class Info(models.Model):
     email = models.EmailField(verbose_name="Email", null=True, blank=True)
     github = models.URLField(verbose_name="GitHub", null=True, blank=True)
     vk = models.URLField(verbose_name="ВКонтакте", null=True, blank=True)
-    description = models.TextField(verbose_name="Описание")
+    description = models.TextField(verbose_name="Описание", null=True, blank=True)
 
     def __str__(self):
         return f'Информация на сайте'

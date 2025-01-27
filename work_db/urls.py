@@ -18,7 +18,9 @@ from work_db.views import (
     database_schemas,
     schema_tables,
     table_columns,
-    generate_fake_data
+    generate_fake_data,
+
+    random_joke
 )
 
 urlpatterns = [
@@ -41,4 +43,6 @@ urlpatterns = [
     path('schemas/<int:pk>/<str:schema_name>/', schema_tables, name='schema_tables'),
     path('schemas/<int:pk>/<str:schema_name>/<str:table_name>/', table_columns, name='table_columns'),
     path('schemas/<int:pk>/<str:schema_name>/<str:table_name>/generate/', generate_fake_data, name='generate_fake_data'),
+
+    path('random_joke/', random_joke, name='random_joke'),
 ]

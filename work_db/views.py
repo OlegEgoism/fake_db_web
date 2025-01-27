@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import logout
 from .models import Info, DataBaseUser
+import pyjokes
 
 
 def home(request):
@@ -386,3 +387,22 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'error_message': error_message
     })
 
+
+def random_joke(request):
+    """Генерация случайной шутки с выбором тематики"""
+    info = Info.objects.first()
+    selected_category = 'neutral'  # Категория по умолчанию
+
+    if request.method == 'POST':
+        selected_category = request.POST.get('category', 'neutral')
+
+    try:
+        jokes = pyjokes.get_joke(language="ru", category=selected_category)
+    except Exception as e:
+        jokes = f"Ошибка при получении шутки: {str(e)}"
+
+    return render(request, template_name='random_joke.html', context={
+        'jokes': jokes,
+        'info': info,
+        'selected_category': selected_category
+    })
