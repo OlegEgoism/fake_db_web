@@ -23,10 +23,6 @@
             <p><strong>Дата создания:</strong> {{ database.db_date_create|date:"d.m.Y - H:i" }}</p>
             <hr>
             <a href="{% url 'profile' %}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Назад</a>
-            <a href="{% url 'database_edit' database.pk %}" class="btn btn-warning mt-3"><i class="bi bi-pencil"></i> Редактировать</a>
-            <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="bi bi-trash"></i> Удалить
-            </button>
         </div>
     </div>
 

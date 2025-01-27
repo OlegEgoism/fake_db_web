@@ -72,7 +72,7 @@ def database_edit(request, pk):
         form = DataBaseUserForm(request.POST, instance=database)
         if form.is_valid():
             form.save()
-            return redirect('database_detail', pk=pk)
+            return redirect('my_projects')
         else:
             form.add_error(None, "Пожалуйста, исправьте ошибки в форме")
     else:
@@ -89,7 +89,7 @@ def database_delete(request, pk):
     database = get_object_or_404(DataBaseUser, pk=pk)
     database.delete()
     messages.success(request, 'Проект успешно удален.')
-    return redirect('profile')
+    return redirect('my_projects')
 
 
 @login_required
@@ -113,10 +113,12 @@ def create_project(request):
 @login_required
 def my_projects(request):
     """Мои проекты базы данных"""
+    info = Info.objects.first()
     projects = DataBaseUser.objects.filter(user=request.user)
     for i in projects:
         print(i.data_base_name)
     return render(request, template_name='my_projects.html', context={
+        'info': info,
         'projects': projects})
 
 
@@ -391,16 +393,13 @@ def generate_fake_data(request, pk, schema_name, table_name):
 def random_joke(request):
     """Генерация случайной шутки с выбором тематики"""
     info = Info.objects.first()
-    selected_category = 'neutral'  # Категория по умолчанию
-
+    selected_category = 'all'
     if request.method == 'POST':
         selected_category = request.POST.get('category', 'neutral')
-
     try:
         jokes = pyjokes.get_joke(language="ru", category=selected_category)
     except Exception as e:
         jokes = f"Ошибка при получении шутки: {str(e)}"
-
     return render(request, template_name='random_joke.html', context={
         'jokes': jokes,
         'info': info,

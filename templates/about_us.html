@@ -33,18 +33,17 @@
             <li><strong>Pro-подписка:</strong> Не ограниченный лимит создания тестовых данных.</li>
             <br>
             <br>
+            <hr>
             <h2 class="bi bi-emoji-smile-fill" style="font-size: 40px; color: #ffc107"> RANDOM JOKES </h2>
             <h3>1. Что такое RANDOM JOKES</h3>
             <p>Решение для генерации случайных шуток, анекдотов по запросу пользователя.
                 Мы помогаем разработчикам, тестировщикам и аналитикам поднять себе настроение.</p>
             <h3>2. Ключевые особенности</h3>
             <p>Удобный пользовательский интерфейс с возможностью генерации новой шутки или анекдота.</p>
+            <br>
+            <br>
+            <hr>
+            <a href="{% url 'home' %}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Назад</a>
         </div>
-        <ul class="list-unstyled mt-3">
-            {% if info.email %}
-                    Почта для связи: <u style="color: blue">{{ info.email }}</u>
-            {% endif %}
-        </ul>
-    </div>
     </div>
 {% endblock %}

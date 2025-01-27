@@ -3,18 +3,22 @@
 {% block title %}Мои проекты{% endblock %}
 
 {% block content %}
-    <h2 class="text-center mb-2">Мои проекты</h2>
+    <h2 class="text-center mb-4">Мои проекты</h2>
     {% if projects %}
         <div class="row">
             {% for project in projects %}
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-lg border-6">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ project.db_project }} ({{ project.data_base_name }})</h5>
+                        <div class="card-body position-relative">
+                            <h5 class="card-title d-flex justify-content-between align-items-center">
+                                <span>{{ project.db_project }} (БД: {{ project.data_base_name }})</span>
+                                <a href="{% url 'database_edit' project.pk %}" class="btn btn-success">Настройки
+                                    <i class="bi bi-gear-fill"></i>
+                                </a>
+                            </h5>
                             <hr>
-                            <p><strong>Название базы:</strong> {{ project.db_name }}</p>
                             <p><strong>Дата создания:</strong> {{ project.db_date_create|date:"d.m.Y - H:i" }}</p>
-                            <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-primary">Подключиться</a>
+                            <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-success">Подключиться</a>
                         </div>
                     </div>
                 </div>
