@@ -5,7 +5,6 @@
 
 {% block content %}
     <h1 class="text-center mb-4">Редактирование подключения: {{ database.db_project }}</h1>
-
     <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
         <div class="card-body">
             <form method="post" class="needs-validation" novalidate>
@@ -92,19 +91,29 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-evenly align-items-center mt-3 flex-wrap">
                     <a href="{% url 'my_projects' %}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Назад
                     </a>
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'connect_to_database' database.pk %}" class="btn btn-info"> <i class="bi bi-plug-fill"></i> Проверить подключение </a>
-                        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Сохранить</button>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash"></i> Удалить</button>
-                    </div>
-                </div>
 
-            </form>
-        </div>
+                    <button type="submit" name="check_connection" value="true" class="btn btn-info">
+                        <i class="bi bi-plug-fill"></i> Проверить подключение
+                    </button>
+
+                    <a href="{% url 'connect_to_database' database.pk %}" class="btn btn-success">
+                        <i class="bi bi-database"></i> Подключиться
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Сохранить
+                    </button>
+
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </div>
+        </form>
+    </div>
     </div>
 
     <!-- Модальное окно подтверждения удаления -->

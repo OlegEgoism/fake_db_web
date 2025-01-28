@@ -10,9 +10,12 @@
                     <div class="card-body">
                         <h2 class="bi bi-box-seam" style="font-size: 40px; color: #198754"> FAKE DB </h2>
                         <p class="card-text">Генерация случайных данных в базе данных</p>
-                        <a href="{% url 'create_project' %}" class="btn btn-success">Создать проект</a>
+                        <a href="{% url 'create_project' %}" class="btn btn-success"> <i class="bi bi-plus-lg"></i> Создать проект </a>
                         {% if user.is_authenticated %}
-                            <a href="{% url 'my_projects' %}" class="btn btn-success">Мои проекты</a>
+                            <a href="{% url 'my_projects' %}" class="btn btn-success">
+    <i class="bi bi-list-ul"></i> Мои проекты
+</a>
+
                         {% endif %}
                     </div>
                 </div>
