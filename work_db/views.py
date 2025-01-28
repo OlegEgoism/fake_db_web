@@ -12,7 +12,8 @@ from django.contrib.auth import logout
 from .models import Info, DataBaseUser
 import pyjokes
 
-connect_timeout = os.getenv('CONNECT_TIMEOUT')
+connect_timeout = int(os.getenv('CONNECT_TIMEOUT'))
+limit_create_db = int(os.getenv('LIMIT_CREATE_DB'))
 
 
 def home(request):
@@ -122,18 +123,26 @@ def database_delete(request, pk):
 def create_project(request):
     """Создать проект базы данных"""
     info = Info.objects.first()
+    user = request.user
+    if not user.pay_plan:
+        user_projects_count = DataBaseUser.objects.filter(user=user).count()
+        if user_projects_count >= limit_create_db:
+            messages.error(request, f"Вы достигли лимита в {limit_create_db} проекта. Для создания большего количества проектов обновите план.", extra_tags="alert alert-warning")
+            return redirect('my_projects')
     if request.method == 'POST':
         form = DataBaseUserForm(request.POST)
         if form.is_valid():
             project = form.save(commit=False)
-            project.user = request.user
+            project.user = user
             project.save()
+            messages.success(request, "Проект успешно создан!", extra_tags="alert alert-success")
             return redirect('my_projects')
     else:
         form = DataBaseUserForm()
     return render(request, template_name='create_project.html', context={
         'info': info,
-        'form': form})
+        'form': form
+    })
 
 
 @login_required

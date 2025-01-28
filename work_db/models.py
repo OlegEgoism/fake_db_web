@@ -21,6 +21,7 @@ class CustomUser(AbstractUser):
     """Пользователь"""
     photo = models.ImageField(verbose_name="Фото", upload_to='user_photo/', default='user_photo/default.png', blank=True, null=True)
     phone_number = models.CharField(verbose_name="Телефон", max_length=15, blank=True, null=True)
+    pay_plan = models.BooleanField(verbose_name="Расширенный доступ", default=False)
 
     def __str__(self):
         return self.username
