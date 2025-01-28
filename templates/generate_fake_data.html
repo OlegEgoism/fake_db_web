@@ -8,10 +8,6 @@
         <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
             <div class="card-body text-center">
                 <h5>Проект: {{ project.db_project }}</h5>
-                <p><strong>База данных:</strong> {{ project.db_name }}</p>
-                <p><strong>Схема:</strong> {{ schema_name }}</p>
-                <p><strong>Таблица:</strong> {{ table_name }}</p>
-                <p><strong>Количество записей в базе данных:</strong> {{ record_count }}</p>
                 <hr>
 
                 {% if error_message %}
@@ -36,37 +32,38 @@
                     <h5 class="text-start">Настройка данных:</h5>
                     <table class="table table-striped text-start">
                         <thead>
-                            <tr>
-                                <th>Название столбца</th>
-                                <th>Тип данных</th>
-                                <th>Выбор значения</th>
-                            </tr>
+                        <tr>
+                            <th>Название столбца</th>
+                            <th>Тип данных</th>
+                            <th>Выбор значения</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for column in column_data %}
-                                <tr>
-                                    <td>{{ column.name }}</td>
-                                    <td>{{ column.type }}</td>
-                                    <td>
-                                        <select class="form-select" name="column_{{ column.name }}">
-                                            {% for choice in column.choices %}
-                                                <option value="{{ choice }}">{{ choice }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </td>
-                                </tr>
-                            {% endfor %}
+                        {% for column in column_data %}
+                            <tr>
+                                <td>{{ column.name }}</td>
+                                <td>{{ column.type }}</td>
+                                <td>
+                                    <select class="form-select" name="column_{{ column.name }}">
+                                        {% for choice in column.choices %}
+                                            <option value="{{ choice }}">{{ choice }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-plus-circle"></i> Сгенерировать
-                    </button>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Назад
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-arrow-up-right-circle"></i> Сгенерировать
+                        </button>
+                    </div>
                 </form>
-
-                <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary mt-3">
-                    <i class="bi bi-arrow-left"></i> Назад
-                </a>
             </div>
         </div>
     </div>

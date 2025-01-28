@@ -4,16 +4,11 @@
 
 {% block content %}
     <div class="container mt-5">
-        <h2 class="text-center mb-4">Таблицы в схеме "{{ schema_name }}"</h2>
-        <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+        <h2 class="text-center mb-4">Таблицы в схеме "{{ schema_name }}" (база данных: {{ project.db_name }})</h2>
+        <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
             <div class="card-body text-center">
                 <h5>Проект: {{ project.db_project }}</h5>
                 <hr>
-                <p><strong>База данных:</strong> {{ project.db_name }}</p>
-                <p><strong>Хост:</strong> {{ project.db_host }}</p>
-                <p><strong>Порт:</strong> {{ project.db_port }}</p>
-                <hr>
-
                 {% if error_message %}
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
@@ -35,10 +30,11 @@
                         <p class="text-muted">В данной схеме таблиц не найдено.</p>
                     {% endif %}
                 {% endif %}
-
-                <a href="{% url 'database_schemas' project.pk %}" class="btn btn-secondary mt-3">
-                    <i class="bi bi-arrow-left"></i> Назад
-                </a>
+                <div class="d-flex justify-content-start mt-3">
+                    <a href="{% url 'database_schemas' project.pk %}" class="btn btn-secondary mt-3">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                </div>
             </div>
         </div>
     </div>

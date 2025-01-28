@@ -7,8 +7,15 @@
     <div class="container mt-5">
         <h1 class="text-center mb-4">Профиль пользователя</h1>
 
+
         <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+
             <div class="card-body text-center">
+                {% if user.pay_plan %}
+                    <div class="alert alert-success d-flex align-items-center justify-content-center" role="alert">
+                        <i class="bi bi-star-fill me-2"></i> Вы имеете бессрочную подписку
+                    </div>
+                {% endif %}
                 {% if user.photo %}
                     <img src="{{ user.photo.url }}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
                 {% else %}
@@ -35,10 +42,10 @@
                     </div>
                 </div>
                 <hr>
-<div class="text-start">
-    <p><i class="bi bi-calendar-week"></i> Последний вход: {{ user.last_login|date:"d.m.Y - H:i" }} </p>
-    <p><i class="bi bi-calendar-check"></i> Дата создания аккаунта: {{ user.date_joined|date:"d.m.Y" }} </p>
-</div>
+                <div class="text-start">
+                    <p><i class="bi bi-calendar-week"></i> Последний вход: {{ user.last_login|date:"d.m.Y - H:i" }} </p>
+                    <p><i class="bi bi-calendar-check"></i> Дата создания аккаунта: {{ user.date_joined|date:"d.m.Y" }} </p>
+                </div>
 
                 <hr>
 
@@ -56,9 +63,9 @@
                                         {{ db.db_project }} ({{ db.data_base_name.name }})
                                     </a>
                                 </div>
-{#                                <a href="{% url 'database_edit' db.pk %}" class="btn btn-warning btn-sm">#}
-{#                                    <i class="bi bi-pencil"></i>#}
-{#                                </a>#}
+                                {#                                <a href="{% url 'database_edit' db.pk %}" class="btn btn-warning btn-sm">#}
+                                {#                                    <i class="bi bi-pencil"></i>#}
+                                {#                                </a>#}
                             </li>
                         {% endfor %}
                     </ul>

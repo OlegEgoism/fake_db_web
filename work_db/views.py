@@ -33,8 +33,10 @@ def about_us(request):
 @login_required
 def profile(request):
     """Страница профиля пользователя"""
+    info = Info.objects.first()
     user_databases = DataBaseUser.objects.filter(user=request.user)
     return render(request, template_name='profile.html', context={
+        'info': info,
         'user': request.user,
         'user_databases': user_databases})
 
@@ -159,6 +161,7 @@ def my_projects(request):
 
 def connect_to_database(request, pk):
     """Получаем объект базы данных"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     connection_status = None
     error_message = None
@@ -168,13 +171,15 @@ def connect_to_database(request, pk):
             user=project.db_user,
             password=project.db_password,
             host=project.db_host,
-            port=project.db_port
+            port=project.db_port,
+            connect_timeout=connect_timeout
         )
         connection_status = f"Успешное подключение к базе данных '{project.db_name}'"
         connection.close()
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='connect_result.html', context={
+        'info': info,
         'project': project,
         'connection_status': connection_status,
         'error_message': error_message

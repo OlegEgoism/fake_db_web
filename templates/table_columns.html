@@ -9,12 +9,6 @@
             <div class="card-body text-center">
                 <h5>Проект: {{ project.db_project }}</h5>
                 <hr>
-                <p><strong>База данных:</strong> {{ project.db_name }}</p>
-                <p><strong>Схема:</strong> {{ schema_name }}</p>
-                <p><strong>Таблица:</strong> {{ table_name }}</p>
-                <p><strong>Количество записей в базе данных:</strong> {{ record_count }}</p>
-                <hr>
-
                 {% if error_message %}
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
@@ -44,13 +38,15 @@
                         <p class="text-muted">В данной таблице колонок не найдено.</p>
                     {% endif %}
                 {% endif %}
-                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3">
-                    <i class="bi bi-database-add"></i> Сгенерировать данные
-                </a>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3">
+                        <i class="bi bi-database-add"></i> Сгенерировать данные
+                    </a>
+                </div>
 
-                <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3">
-                    <i class="bi bi-arrow-left"></i> Назад
-                </a>
             </div>
         </div>
     </div>
