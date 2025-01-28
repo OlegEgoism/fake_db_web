@@ -61,4 +61,4 @@ class DataBaseUser(models.Model):
     class Meta:
         verbose_name = "База данных пользователя"
         verbose_name_plural = "Базы данных пользователей"
-        ordering = 'user',
+        ordering = 'db_date_create',

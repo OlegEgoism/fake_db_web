@@ -140,7 +140,7 @@ def create_project(request):
 def my_projects(request):
     """Мои проекты базы данных"""
     info = Info.objects.first()
-    projects = DataBaseUser.objects.filter(user=request.user)
+    projects = DataBaseUser.objects.filter(user=request.user).order_by('db_date_create')
     for i in projects:
         print(i.data_base_name)
     return render(request, template_name='my_projects.html', context={
