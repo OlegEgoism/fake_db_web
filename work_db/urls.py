@@ -5,6 +5,7 @@ from work_db.views import (
     about_us,
 
     profile,
+    edit_profile,
     register,
     logout_view,
 
@@ -28,6 +29,8 @@ urlpatterns = [
     path('about_us/', about_us, name='about_us'),
 
     path('profile/', profile, name='profile'),
+    path('profile/edit/', edit_profile, name='edit_profile'),
+
     path('register/', register, name='register'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),

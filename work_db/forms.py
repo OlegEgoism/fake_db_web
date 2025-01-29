@@ -12,9 +12,21 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'photo', 'password1', 'password2')
 
 
+class CustomUserForm(forms.ModelForm):
+    """Редактирование профиля пользователя"""
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'phone_number', 'photo']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'photo': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
 class DataBaseUserForm(forms.ModelForm):
     """Редактирование данных проекта"""
-
     class Meta:
         model = DataBaseUser
         fields = ('data_base_name', 'db_project', 'db_name', 'db_user', 'db_password', 'db_host', 'db_port')

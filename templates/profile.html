@@ -4,80 +4,83 @@
 {% block title %}Профиль{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Профиль пользователя</h1>
+    <h1 class="text-center mb-4">Профиль пользователя</h1>
 
 
-        <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+    <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
 
-            <div class="card-body text-center">
-                {% if user.pay_plan %}
-                    <div class="alert alert-success d-flex align-items-center justify-content-center" role="alert">
-                        <i class="bi bi-star-fill me-2"></i> Вы имеете бессрочную подписку
-                    </div>
-                {% endif %}
-                {% if not user.pay_plan %}
-                    <div class="alert alert-info d-flex align-items-center justify-content-center" role="alert">
-                        <i class="bi bi-bar-chart-line-fill me-2"></i> Лимит строк генерации данных: {{ user.limit_request }} шт.
-                    </div>
-                {% endif %}
-                {% if user.photo %}
-                    <img src="{{ user.photo.url }}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
-                {% else %}
-                    <img src="{% static 'img/default-profile.png' %}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
-                {% endif %}
-                <h4>{{ user.username }}</h4>
-                <div class="d-flex text-start align-items-center gap-4 flex-wrap">
-                    <div>
-                        <i class="bi bi-envelope-fill"></i>
-                        {% if user.email %}
-                            Email: {{ user.email }}
-                        {% else %}
-                            Email не указан
-                        {% endif %}
-                    </div>
-                    <br>
-                    <div>
-                        <i class="bi bi-phone"></i>
-                        {% if user.phone_number %}
-                            Телефон: {{ user.phone_number }}
-                        {% else %}
-                            Номер телефона не указан
-                        {% endif %}
-                    </div>
+        <div class="card-body text-center">
+            {% if user.pay_plan %}
+                <div class="alert alert-success d-flex align-items-center justify-content-center" role="alert">
+                    <i class="bi bi-star-fill me-2"></i> Вы имеете бессрочную подписку
                 </div>
-                <hr>
-                <div class="text-start">
-                    <p><i class="bi bi-calendar-week"></i> Последний вход: {{ user.last_login|date:"d.m.Y - H:i" }} </p>
-                    <p><i class="bi bi-calendar-check"></i> Дата создания аккаунта: {{ user.date_joined|date:"d.m.Y" }} </p>
+            {% endif %}
+            {% if not user.pay_plan %}
+                <div class="alert alert-info d-flex align-items-center justify-content-center" role="alert">
+                    <i class="bi bi-bar-chart-line-fill me-2"></i> Лимит строк генерации данных: {{ user.limit_request }} шт.
                 </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Список проектов</h5>
-                </div>
-
-                {% if user_databases %}
-                    <ul class="list-group">
-                        {% for db in user_databases %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-database-fill"></i>
-                                    <a href="{% url 'database_detail' db.pk %}" class="text-decoration-none">
-                                        {{ db.db_project }} ({{ db.data_base_name.name }})
-                                    </a>
-                                </div>
-                                {#                                <a href="{% url 'database_edit' db.pk %}" class="btn btn-warning btn-sm">#}
-                                {#                                    <i class="bi bi-pencil"></i>#}
-                                {#                                </a>#}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">У вас нет созданных проектов</p>
-                {% endif %}
+            {% endif %}
+            {% if user.photo %}
+                <img src="{{ user.photo.url }}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
+            {% else %}
+                <img src="{% static 'img/default-profile.png' %}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
+            {% endif %}
+            <div class="d-flex justify-content-end mt-3">
+                <a href="{% url 'edit_profile' %}" class="btn btn-warning">
+                    <i class="bi bi-pencil-square"></i> Редактировать профиль
+                </a>
             </div>
+            <h4>{{ user.username }}</h4>
+            <div class="d-flex text-start align-items-center gap-4 flex-wrap">
+                <div>
+                    <i class="bi bi-envelope-fill"></i>
+                    {% if user.email %}
+                        Email: {{ user.email }}
+                    {% else %}
+                        Email не указан
+                    {% endif %}
+                </div>
+                <br>
+                <div>
+                    <i class="bi bi-phone"></i>
+                    {% if user.phone_number %}
+                        Телефон: {{ user.phone_number }}
+                    {% else %}
+                        Номер телефона не указан
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <div class="text-start">
+                <p><i class="bi bi-calendar-week"></i> Последний вход: {{ user.last_login|date:"d.m.Y - H:i" }} </p>
+                <p><i class="bi bi-calendar-check"></i> Дата создания аккаунта: {{ user.date_joined|date:"d.m.Y" }} </p>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Список проектов</h5>
+            </div>
+
+            {% if user_databases %}
+                <ul class="list-group">
+                    {% for db in user_databases %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-database-fill"></i>
+                                <a href="{% url 'database_detail' db.pk %}" class="text-decoration-none">
+                                    {{ db.db_project }} ({{ db.data_base_name.name }})
+                                </a>
+                            </div>
+                            {#                                <a href="{% url 'database_edit' db.pk %}" class="btn btn-warning btn-sm">#}
+                            {#                                    <i class="bi bi-pencil"></i>#}
+                            {#                                </a>#}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">У вас нет созданных проектов</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

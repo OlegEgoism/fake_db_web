@@ -5,7 +5,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from faker import Faker
 from .data.data_choices_list import choices_list
-from .forms import CustomUserCreationForm, DataBaseUserForm
+from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -39,6 +39,26 @@ def profile(request):
         'info': info,
         'user': request.user,
         'user_databases': user_databases})
+
+
+@login_required
+def edit_profile(request):
+    """Редактирование профиля пользователя"""
+    user = request.user
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Профиль успешно обновлен.")
+            return redirect('profile')
+        else:
+            messages.error(request, "Ошибка при обновлении профиля. Проверьте введенные данные.")
+    else:
+        form = CustomUserForm(instance=user)
+    return render(request, template_name = 'edit_profile.html', context={
+        'form': form
+    })
+
 
 
 def register(request):
