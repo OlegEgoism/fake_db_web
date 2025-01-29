@@ -305,12 +305,24 @@ def table_columns(request, pk, schema_name, table_name):
 def generate_fake_data(request, pk, schema_name, table_name):
     """Генерация случайных данных для указанной таблицы"""
     project = get_object_or_404(DataBaseUser, pk=pk)
+    user = project.user
     fake = Faker('ru_RU')
     error_message = None
     inserted_rows = 0
     record_count = 0  # Переменная для хранения количества записей
     retry_attempts = 200  # Количество попыток вставки при ошибке
-    data_choices = choices_list
+    data_choices = {
+    'character varying': ['Имя', 'Фамилия', 'Полное имя', 'Адрес', 'Email', 'Телефон', 'Текст', 'Город', 'Компания', 'Страна', 'Валюта', 'IP-адрес', 'Домен', 'URL', 'Цвет', 'UUID', 'Кредитная карта'],
+    'text': ['Текст', 'UUID', 'Описание', 'Короткое описание', 'Книга', 'Цитата', 'Пароль', 'Комбинация слов', 'Случайный заголовок', 'Категория продукта'],
+    'integer': ['Случайное число', 'Возраст', 'Количество', 'Цена', 'Индекс', 'Количество страниц', 'Год', 'Рейтинг (1-5)', 'Широта', 'Долгота'],
+    'boolean': ['True/False', 'Да/Нет', 'Активен/Не активен', 'Оплачено/Не оплачено', 'Включено/Выключено', 'Доступно/Недоступно'],
+    'date': ['Дата сегодня', 'Дата в прошлом', 'Дата в будущем', 'Случайная дата', 'Дата рождения', 'Дата заказа', 'Дата регистрации', 'Срок действия'],
+    'timestamp': ['Текущая дата/время', 'Прошедшая дата/время', 'Будущая дата/время', 'Последнее обновление', 'Дата и время создания', 'Время регистрации'],
+    'double precision': ['Случайное дробное число', 'Цена', 'Широта', 'Долгота', 'Скорость', 'Температура', 'Высота', 'Оценка (0.0 - 10.0)'],
+    'numeric': ['Сумма', 'Курс валюты', 'Коэффициент', 'Размер скидки', 'Стоимость доставки', 'Рейтинг продукта'],
+    'uuid': ['UUID', 'Идентификатор продукта', 'Код заказа', 'Ключ аутентификации', 'Идентификатор устройства'],
+    'inet': ['IP-адрес (v4)', 'IP-адрес (v6)', 'Локальный IP', 'Публичный IP', 'Хост'],
+}
 
     try:
         connection = psycopg2.connect(
@@ -349,9 +361,25 @@ def generate_fake_data(request, pk, schema_name, table_name):
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
 
+
+
     if request.method == 'POST':
+        num_records = int(request.POST.get('num_records', 10))
+
+        if user.pay_plan != True:
+            # Проверка лимита запросов перед генерацией данных
+            if user.limit_request < num_records:
+                error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
+                return render(request, 'generate_fake_data.html', {
+                    'project': project,
+                    'schema_name': schema_name,
+                    'table_name': table_name,
+                    'inserted_rows': inserted_rows,
+                    'record_count': record_count,
+                    'error_message': error_message
+                })
+
         try:
-            num_records = int(request.POST.get('num_records', 10))
             connection = psycopg2.connect(
                 dbname=project.db_name,
                 user=project.db_user,
@@ -361,9 +389,20 @@ def generate_fake_data(request, pk, schema_name, table_name):
             )
             cursor = connection.cursor()
 
-            column_names = [f'"{col["name"]}"' for col in column_data]  # Кавычки для имен колонок
+            cursor.execute("""
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = %s 
+                  AND table_name = %s;
+            """, (schema_name, table_name))
+            columns = cursor.fetchall()
+
+            column_data = [{'name': col[0], 'type': col[1]} for col in columns]
+
+            column_names = [f'"{col["name"]}"' for col in column_data]  # Кавычки для SQL
             placeholders = ', '.join(['%s' for _ in column_data])
             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
+
 
             for _ in range(num_records):
                 attempt = 0
@@ -414,6 +453,11 @@ def generate_fake_data(request, pk, schema_name, table_name):
 
             cursor.close()
             connection.close()
+
+            if user.pay_plan != True:
+                user.limit_request = max(0, user.limit_request - num_records)
+                user.save()
+
         except psycopg2.IntegrityError as e:
             error_message = f"Ошибка вставки данных (дубликат): {str(e)}"
         except Exception as e:

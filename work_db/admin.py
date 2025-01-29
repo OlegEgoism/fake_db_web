@@ -41,12 +41,12 @@ class CustomUserAdmin(admin.ModelAdmin):
     """Пользователь"""
     fieldsets = (
         ('ЛИЧНЫЕ ДАННЫЕ', {
-            'fields': ('username', 'preview_photo', 'photo', 'email', 'phone_number', 'pay_plan', 'last_login', 'date_joined',)},),
+            'fields': ('username', 'preview_photo', 'photo', 'email', 'phone_number', 'limit_request', 'pay_plan', 'last_login', 'date_joined',)},),
         ('РАЗРЕШЕНИЯ', {
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions',)}),
     )
-    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'pay_plan', 'last_login', 'is_active',
+    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'pay_plan', 'last_login', 'is_active',
     list_filter = 'is_staff', 'is_active', 'date_joined',
     list_editable = 'pay_plan', 'is_active',
     search_fields = 'username', 'email', 'phone_number',
