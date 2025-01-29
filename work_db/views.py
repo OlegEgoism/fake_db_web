@@ -89,38 +89,33 @@ def send_registration_email(user_email, username):
     send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
 
 
-def generate_confirmation_code():
-    """Генерация 6-значного кода подтверждения"""
-    return str(random.randint(100000, 999999))
+# def generate_confirmation_code():
+#     """Генерация 6-значного кода подтверждения"""
+#     return str(random.randint(100000, 999999))
 
 
-def send_confirmation_email(user_email, confirmation_code):
-    """Отправка кода подтверждения на email пользователя"""
-    subject = "Подтверждение удаления аккаунта"
-    message = f"Ваш код для удаления аккаунта: {confirmation_code}"
-    send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
+# def send_confirmation_email(user_email, confirmation_code):
+#     """Отправка кода подтверждения на email пользователя"""
+#     subject = "Подтверждение удаления аккаунта"
+#     message = f"Ваш код для удаления аккаунта: {confirmation_code}"
+#     send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
 
 
 @login_required
 def request_account_deletion(request):
     """Запрос на удаление аккаунта с отправкой кода подтверждения"""
     user = request.user
-    code = str(random.randint(100000, 999999))  # Генерируем 6-значный код
-
-    # Сохраняем код в БД или обновляем, если уже есть
+    code = str(random.randint(100000, 999999))
     deletion_code, created = DeletionConfirmation.objects.get_or_create(user=user)
     deletion_code.code = code
     deletion_code.save()
-
-    # Отправляем код на email
     send_mail(
         "Подтверждение удаления аккаунта",
         f"Ваш код для удаления аккаунта: {code}",
-        "iteccompanyit@gmail.com",
+        settings.EMAIL_HOST_USER,
         [user.email],
         fail_silently=False,
     )
-
     messages.success(request, "Код подтверждения отправлен на вашу почту.")
     return redirect("confirm_account_deletion")
 
@@ -129,24 +124,20 @@ def request_account_deletion(request):
 def confirm_account_deletion(request):
     """Подтверждение удаления аккаунта"""
     user = request.user
-
     if request.method == "POST":
         entered_code = request.POST.get("code")
-
         try:
             deletion_code = DeletionConfirmation.objects.get(user=user)
         except DeletionConfirmation.DoesNotExist:
             messages.error(request, "Ошибка! Код не найден. Запросите новый.")
             return redirect("request_account_deletion")
-
         if entered_code == deletion_code.code:
             user.delete()
             messages.success(request, "Ваш аккаунт успешно удален.")
             return redirect("home")  # Перенаправляем на главную страницу
         else:
             messages.error(request, "Неверный код подтверждения. Попробуйте еще раз.")
-
-    return render(request, "confirm_account_deletion.html")
+    return render(request, template_name="confirm_account_deletion.html")
 
 
 

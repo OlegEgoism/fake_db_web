@@ -17,7 +17,7 @@
             {% endif %}
             {% if not user.pay_plan %}
                 <div class="alert alert-info d-flex align-items-center justify-content-center" role="alert">
-                    <i class="bi bi-bar-chart-line-fill me-2"></i> Лимит строк генерации данных: {{ user.limit_request }} шт.
+                    <i class="bi bi-bar-chart-line-fill me-2"></i> Количество доступных строк для генерации: {{ user.limit_request }} шт.
                 </div>
             {% endif %}
             {% if user.photo %}
