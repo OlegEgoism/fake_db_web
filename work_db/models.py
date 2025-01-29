@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -43,6 +44,20 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+class DeletionConfirmation(models.Model):
+    """Коды удаления аккаунтов"""
+    user = models.OneToOneField(CustomUser, verbose_name="Пользователь", on_delete=models.CASCADE, related_name='deletion_code')
+    code = models.CharField(verbose_name="Код подтверждения", max_length=6)
+    created_at = models.DateTimeField(verbose_name="Дата отправки кода на почту", auto_now_add=True)
+
+    def __str__(self):
+        return f"Код удаления для f{self.user.username}"
+
+    class Meta:
+        verbose_name = "Код удаления аккаунта"
+        verbose_name_plural = "Коды удаления аккаунтов"
 
 
 class DataBaseName(models.Model):

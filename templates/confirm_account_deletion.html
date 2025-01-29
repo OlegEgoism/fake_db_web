@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление аккаунта{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Удаление аккаунта</h2>
+        <div class="card mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <p>На ваш email отправлен код подтверждения. Введите его ниже.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="code" class="form-label">Код подтверждения</label>
+                        <input type="text" class="form-control" id="code" name="code" required>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{% url 'profile' %}" class="btn btn-secondary"> <i class="bi bi-arrow-left"></i> Назад </a>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Удалить аккаунт</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

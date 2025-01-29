@@ -25,11 +25,6 @@
             {% else %}
                 <img src="{% static 'img/default-profile.png' %}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
             {% endif %}
-            <div class="d-flex justify-content-end mt-3">
-                <a href="{% url 'edit_profile' %}" class="btn btn-warning">
-                    <i class="bi bi-pencil-square"></i> Редактировать профиль
-                </a>
-            </div>
             <h4>{{ user.username }}</h4>
             <div class="d-flex text-start align-items-center gap-4 flex-wrap">
                 <div>
@@ -55,9 +50,16 @@
                 <p><i class="bi bi-calendar-week"></i> Последний вход: {{ user.last_login|date:"d.m.Y - H:i" }} </p>
                 <p><i class="bi bi-calendar-check"></i> Дата создания аккаунта: {{ user.date_joined|date:"d.m.Y" }} </p>
             </div>
-
             <hr>
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'edit_profile' %}" class="btn btn-success">
+                    <i class="bi bi-pencil-square"></i> Редактировать профиль
+                </a>
 
+                <a href="{% url 'request_account_deletion' %}" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Удалить аккаунт
+                </a>
+            </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0">Список проектов</h5>
             </div>
@@ -72,51 +74,41 @@
                                     {{ db.db_project }} ({{ db.data_base_name.name }})
                                 </a>
                             </div>
-                            {#                                <a href="{% url 'database_edit' db.pk %}" class="btn btn-warning btn-sm">#}
-                            {#                                    <i class="bi bi-pencil"></i>#}
-                            {#                                </a>#}
+                            <a href="{% url 'database_edit' db.pk %}" class="btn btn-success">
+                                <i class="bi bi-gear-fill"></i> Настройки
+                            </a>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p class="text-muted">У вас нет созданных проектов</p>
             {% endif %}
-        
-        
-        <div class="d-flex justify-content-end mt-3">
-    <a href="{% url 'edit_profile' %}" class="btn btn-warning">
-        <i class="bi bi-pencil-square"></i> Редактировать профиль
-    </a>
-    <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
-        <i class="bi bi-trash"></i> Удалить профиль
-    </button>
-</div>
 
-<!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteProfileModalLabel">Удаление профиля</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-            </div>
-            <div class="modal-body">
-                <p>На вашу почту отправлен код подтверждения. Введите его ниже для удаления аккаунта.</p>
-                <form method="post" action="{% url 'delete_profile' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="confirm_code" class="form-label">Код подтверждения</label>
-                        <input type="text" class="form-control" id="confirm_code" name="confirm_code" required>
+
+            <!-- Модальное окно подтверждения удаления -->
+            <div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteProfileModalLabel">Удаление профиля</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>На вашу почту отправлен код подтверждения. Введите его ниже для удаления аккаунта.</p>
+                            <form method="post" action="{% url 'request_account_deletion' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="confirm_code" class="form-label">Код подтверждения</label>
+                                    <input type="text" class="form-control" id="confirm_code" name="confirm_code" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">Удалить профиль</button>
+                            </form>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-danger w-100">Удалить профиль</button>
-                </form>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
-        
-        
+
         </div>
     </div>
 {% endblock %}

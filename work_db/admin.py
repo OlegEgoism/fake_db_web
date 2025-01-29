@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from work_db.models import CustomUser, DataBaseName, DataBaseUser, Info, AppSettings
+from work_db.models import CustomUser, DataBaseName, DataBaseUser, Info, AppSettings, DeletionConfirmation
 
 admin.site.site_header = "FAKE DATA"
 admin.site.site_title = "Админ-панель FAKE DATA"
@@ -13,6 +13,20 @@ class DataBaseUserInline(admin.TabularInline):
     extra = 0
     classes = ['collapse']
     readonly_fields = 'data_base_name',
+
+
+@admin.register(DeletionConfirmation)
+class DeletionConfirmationAdmin(admin.ModelAdmin):
+    list_display = 'user', 'get_user_email', 'code', 'created_at'
+    list_filter = 'created_at',
+    search_fields = 'code', 'user__username'
+    search_help_text = 'Поиск по имени пользователя и коду подтверждения'
+    readonly_fields = 'user', 'code', 'created_at',
+
+    def get_user_email(self, obj):
+        """Получить email пользователя"""
+        return obj.user.email
+    get_user_email.short_description = "Почта пользователя"
 
 
 @admin.register(AppSettings)

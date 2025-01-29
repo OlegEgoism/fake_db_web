@@ -21,7 +21,7 @@ from work_db.views import (
     table_columns,
     generate_fake_data,
 
-    random_joke
+    random_joke, request_account_deletion, confirm_account_deletion,
 )
 
 urlpatterns = [
@@ -30,6 +30,8 @@ urlpatterns = [
 
     path('profile/', profile, name='profile'),
     path('profile/edit/', edit_profile, name='edit_profile'),
+    path("delete-account/", request_account_deletion, name="request_account_deletion"),
+    path("confirm-delete/", confirm_account_deletion, name="confirm_account_deletion"),
 
     path('register/', register, name='register'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
