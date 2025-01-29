@@ -16,6 +16,11 @@
                         <i class="bi bi-star-fill me-2"></i> Вы имеете бессрочную подписку
                     </div>
                 {% endif %}
+                {% if not user.pay_plan %}
+                    <div class="alert alert-info d-flex align-items-center justify-content-center" role="alert">
+                        <i class="bi bi-bar-chart-line-fill me-2"></i> Лимит строк генерации данных: {{ user.limit_request }} шт.
+                    </div>
+                {% endif %}
                 {% if user.photo %}
                     <img src="{{ user.photo.url }}" class="rounded-circle mb-3" alt="Фото профиля" width="150" height="150">
                 {% else %}

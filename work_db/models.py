@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     photo = models.ImageField(verbose_name="Фото", upload_to='user_photo/', default='user_photo/default.png', blank=True, null=True)
     phone_number = models.CharField(verbose_name="Телефон", max_length=15, blank=True, null=True)
     pay_plan = models.BooleanField(verbose_name="Расширенный доступ", default=False)
-    limit_request = models.IntegerField(verbose_name="Лимит запросов", default=10000000)
+    limit_request = models.IntegerField(verbose_name="Лимит строк генерации данных", default=10000000)
 
     def __str__(self):
         return self.username
