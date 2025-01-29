@@ -1,4 +1,3 @@
-import os
 import psycopg2
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
@@ -9,11 +8,9 @@ from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import logout
-from .models import Info, DataBaseUser
+from .models import Info, DataBaseUser, AppSettings
 import pyjokes
 
-connect_timeout = int(os.getenv('CONNECT_TIMEOUT'))
-limit_create_db = int(os.getenv('LIMIT_CREATE_DB'))
 
 
 def home(request):
@@ -44,6 +41,7 @@ def profile(request):
 @login_required
 def edit_profile(request):
     """Редактирование профиля пользователя"""
+    info = Info.objects.first()
     user = request.user
     if request.method == 'POST':
         form = CustomUserForm(request.POST, request.FILES, instance=user)
@@ -56,12 +54,14 @@ def edit_profile(request):
     else:
         form = CustomUserForm(instance=user)
     return render(request, template_name='edit_profile.html', context={
+        'info': info,
         'form': form
     })
 
 
 def register(request):
     """Регистрация пользователя"""
+    info = Info.objects.first()
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
@@ -71,6 +71,7 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, template_name='registration/register.html', context={
+        'info': info,
         'form': form})
 
 
@@ -92,8 +93,9 @@ def database_detail(request, pk):
 def database_edit(request, pk):
     """Редактирование информации о базе данных и проверка подключения"""
     info = Info.objects.first()
+    connect_timeout = AppSettings.objects.first().connect_timeout_db
     database = get_object_or_404(DataBaseUser, pk=pk)
-    form = DataBaseUserForm(instance=database)
+    # form = DataBaseUserForm(instance=database)
     if request.method == 'POST':
         form = DataBaseUserForm(request.POST, instance=database)
         if form.is_valid():
@@ -144,6 +146,8 @@ def database_delete(request, pk):
 def create_project(request):
     """Создать проект базы данных"""
     info = Info.objects.first()
+    limit_create_db = AppSettings.objects.first().limit_create_db
+    print('----------', limit_create_db)
     user = request.user
     if not user.pay_plan:
         user_projects_count = DataBaseUser.objects.filter(user=user).count()
@@ -181,6 +185,7 @@ def my_projects(request):
 def connect_to_database(request, pk):
     """Получаем объект базы данных"""
     info = Info.objects.first()
+    connect_timeout = AppSettings.objects.first().connect_timeout_db
     project = get_object_or_404(DataBaseUser, pk=pk)
     connection_status = None
     error_message = None

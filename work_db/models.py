@@ -2,6 +2,19 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class AppSettings(models.Model):
+    """Настройки проекта"""
+    limit_create_db = models.IntegerField(verbose_name="Лимит создания проектов", default=3)
+    connect_timeout_db = models.IntegerField(verbose_name="Время проверки соединения в БД", default=5)
+
+    def __str__(self):
+        return f'Настройки проекта'
+
+    class Meta:
+        verbose_name = "Настройки проекта"
+        verbose_name_plural = "Настройки проекта"
+
+
 class Info(models.Model):
     """Информация на сайте"""
     email = models.EmailField(verbose_name="Email", null=True, blank=True)

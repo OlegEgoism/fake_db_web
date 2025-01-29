@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from work_db.models import CustomUser, DataBaseName, DataBaseUser, Info
+from work_db.models import CustomUser, DataBaseName, DataBaseUser, Info, AppSettings
 
 admin.site.site_header = "FAKE DATA"
 admin.site.site_title = "Админ-панель FAKE DATA"
@@ -15,17 +15,24 @@ class DataBaseUserInline(admin.TabularInline):
     readonly_fields = 'data_base_name',
 
 
+@admin.register(AppSettings)
+class AppSettingsAdmin(admin.ModelAdmin):
+    """Информация на сайте"""
+    list_display = '__str__', 'limit_create_db', 'connect_timeout_db',
+
+    def has_add_permission(self, request):
+        """Запрещает создание новой записи, если уже существует одна запись"""
+        return not AppSettings.objects.exists()
+
+
 @admin.register(Info)
 class InfoAdmin(admin.ModelAdmin):
     """Информация на сайте"""
-    pass
     list_display = '__str__', 'email', 'github', 'vk', 'short_question',
 
     def has_add_permission(self, request):
-        """Запрещает добавление новых объектов, если достигнут лимит"""
-        if Info.objects.count() >= 1:
-            return False
-        return super().has_add_permission(request)
+        """Запрещает создание новой записи, если уже существует одна запись"""
+        return not Info.objects.exists()
 
     def short_question(self, obj):
         len_str = 100
