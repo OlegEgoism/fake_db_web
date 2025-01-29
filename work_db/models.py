@@ -46,7 +46,7 @@ class DataBaseName(models.Model):
 
 
 class DataBaseUser(models.Model):
-    """База данных пользователя"""
+    """Проект пользователя"""
     db_project = models.CharField(verbose_name="Проект", max_length=200, unique=True)
     db_name = models.CharField(verbose_name="Название", max_length=255)
     db_user = models.CharField(verbose_name="Пользователь", max_length=255)
@@ -61,6 +61,6 @@ class DataBaseUser(models.Model):
         return f"Данные БД пользователя: {self.user.username}"
 
     class Meta:
-        verbose_name = "База данных пользователя"
-        verbose_name_plural = "Базы данных пользователей"
+        verbose_name = "Проект пользователя"
+        verbose_name_plural = "Проекты пользователей"
         ordering = 'db_date_create',

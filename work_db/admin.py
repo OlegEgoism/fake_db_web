@@ -47,7 +47,7 @@ class CustomUserAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions',)}),
     )
     list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'pay_plan', 'last_login', 'is_active',
-    list_filter = 'is_staff', 'is_active', 'date_joined',
+    list_filter = 'pay_plan', 'is_staff', 'is_active', 'date_joined',
     list_editable = 'pay_plan', 'is_active',
     search_fields = 'username', 'email', 'phone_number',
     search_help_text = 'Поиск по имени пользователя, адресу электронной почте и номеру телефона'

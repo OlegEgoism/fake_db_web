@@ -7,28 +7,34 @@
         <h2 class="text-center mb-4">Регистрация</h2>
         <div class="card mx-auto" style="max-width: 500px;">
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" action="{% url 'register' %}" enctype="multipart/form-data">
                     {% csrf_token %}
+
                     <div class="mb-3">
                         <label for="id_username" class="form-label">Имя пользователя</label>
-                        {{ form.username }}
+                        <input type="text" class="form-control" id="id_username" name="username" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="id_email" class="form-label">Email</label>
-                        {{ form.email }}
+                        <input type="email" class="form-control" id="id_email" name="email" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="id_photo" class="form-label">Фото</label>
-                        {{ form.photo }}
+                        <input type="file" class="form-control" id="id_photo" name="photo" accept="image/*">
                     </div>
+
                     <div class="mb-3">
                         <label for="id_password1" class="form-label">Пароль</label>
-                        {{ form.password1 }}
+                        <input type="password" class="form-control" id="id_password1" name="password1" required>
                     </div>
+
                     <div class="mb-3">
-                        <label for="id_password2" class="form-label">Подтвердите пароль</label>
-                        {{ form.password2 }}
+                        <label for="id_password2" class="form-label">Подтверждение пароля</label>
+                        <input type="password" class="form-control" id="id_password2" name="password2" required>
                     </div>
+
                     <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
                 </form>
             </div>
