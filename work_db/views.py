@@ -19,14 +19,16 @@ def home(request):
     """Главная"""
     info = Info.objects.first()
     return render(request, template_name='home.html', context={
-        'info': info})
+        'info': info
+    })
 
 
 def about_us(request):
     """Страница о нас"""
     info = Info.objects.first()
     return render(request, template_name='about_us.html', context={
-        'info': info})
+        'info': info
+    })
 
 
 @login_required
@@ -37,7 +39,8 @@ def profile(request):
     return render(request, template_name='profile.html', context={
         'info': info,
         'user': request.user,
-        'user_databases': user_databases})
+        'user_databases': user_databases
+    })
 
 
 @login_required
@@ -75,7 +78,8 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, template_name='registration/register.html', context={
         'info': info,
-        'form': form})
+        'form': form
+    })
 
 
 def send_registration_email(user_email, username):
@@ -87,18 +91,6 @@ def send_registration_email(user_email, username):
         "Теперь вы можете войти в систему и начать использовать все возможности."
     )
     send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
-
-
-# def generate_confirmation_code():
-#     """Генерация 6-значного кода подтверждения"""
-#     return str(random.randint(100000, 999999))
-
-
-# def send_confirmation_email(user_email, confirmation_code):
-#     """Отправка кода подтверждения на email пользователя"""
-#     subject = "Подтверждение удаления аккаунта"
-#     message = f"Ваш код для удаления аккаунта: {confirmation_code}"
-#     send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
 
 
 @login_required
@@ -140,7 +132,6 @@ def confirm_account_deletion(request):
     return render(request, template_name="confirm_account_deletion.html")
 
 
-
 def logout_view(request):
     """Выход пользователя"""
     logout(request)
@@ -152,7 +143,8 @@ def database_detail(request, pk):
     """Страница информации о конкретной базе данных пользователя"""
     database = get_object_or_404(DataBaseUser, pk=pk)
     return render(request, template_name='database_detail.html', context={
-        'database': database})
+        'database': database
+    })
 
 
 @login_required
@@ -242,7 +234,8 @@ def my_projects(request):
     projects = DataBaseUser.objects.filter(user=request.user).order_by('db_date_create')
     return render(request, template_name='my_projects.html', context={
         'info': info,
-        'projects': projects})
+        'projects': projects
+    })
 
 
 def connect_to_database(request, pk):
@@ -275,6 +268,7 @@ def connect_to_database(request, pk):
 
 def database_schemas(request, pk):
     """Получаем список схем в базе данных"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     schemas = []
     error_message = None
@@ -299,6 +293,7 @@ def database_schemas(request, pk):
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='database_schemas.html', context={
+        'info': info,
         'project': project,
         'schemas': schemas,
         'error_message': error_message
@@ -307,6 +302,7 @@ def database_schemas(request, pk):
 
 def schema_tables(request, pk, schema_name):
     """Получения информации о схеме"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     tables = []
     error_message = None
@@ -330,6 +326,7 @@ def schema_tables(request, pk, schema_name):
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='schema_tables.html', context={
+        'info': info,
         'project': project,
         'schema_name': schema_name,
         'tables': tables,
@@ -339,6 +336,7 @@ def schema_tables(request, pk, schema_name):
 
 def table_columns(request, pk, schema_name, table_name):
     """Получение информации о таблице и количестве записей"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     columns = []
     record_count = 0
@@ -380,6 +378,7 @@ def table_columns(request, pk, schema_name, table_name):
         error_message = f"Ошибка подключения: {str(e)}"
 
     return render(request, template_name='table_columns.html', context={
+        'info': info,
         'project': project,
         'schema_name': schema_name,
         'table_name': table_name,
@@ -391,26 +390,15 @@ def table_columns(request, pk, schema_name, table_name):
 
 def generate_fake_data(request, pk, schema_name, table_name):
     """Генерация случайных данных для указанной таблицы"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     user = project.user
     fake = Faker('ru_RU')
     error_message = None
     inserted_rows = 0
-    record_count = 0  # Переменная для хранения количества записей
-    retry_attempts = 200  # Количество попыток вставки при ошибке
-    data_choices = {
-        'character varying': ['Имя', 'Фамилия', 'Полное имя', 'Адрес', 'Email', 'Телефон', 'Текст', 'Город', 'Компания', 'Страна', 'Валюта', 'IP-адрес', 'Домен', 'URL', 'Цвет', 'UUID', 'Кредитная карта'],
-        'text': ['Текст', 'UUID', 'Описание', 'Короткое описание', 'Книга', 'Цитата', 'Пароль', 'Комбинация слов', 'Случайный заголовок', 'Категория продукта'],
-        'integer': ['Случайное число', 'Возраст', 'Количество', 'Цена', 'Индекс', 'Количество страниц', 'Год', 'Рейтинг (1-5)', 'Широта', 'Долгота'],
-        'boolean': ['True/False', 'Да/Нет', 'Активен/Не активен', 'Оплачено/Не оплачено', 'Включено/Выключено', 'Доступно/Недоступно'],
-        'date': ['Дата сегодня', 'Дата в прошлом', 'Дата в будущем', 'Случайная дата', 'Дата рождения', 'Дата заказа', 'Дата регистрации', 'Срок действия'],
-        'timestamp': ['Текущая дата/время', 'Прошедшая дата/время', 'Будущая дата/время', 'Последнее обновление', 'Дата и время создания', 'Время регистрации'],
-        'double precision': ['Случайное дробное число', 'Цена', 'Широта', 'Долгота', 'Скорость', 'Температура', 'Высота', 'Оценка (0.0 - 10.0)'],
-        'numeric': ['Сумма', 'Курс валюты', 'Коэффициент', 'Размер скидки', 'Стоимость доставки', 'Рейтинг продукта'],
-        'uuid': ['UUID', 'Идентификатор продукта', 'Код заказа', 'Ключ аутентификации', 'Идентификатор устройства'],
-        'inet': ['IP-адрес (v4)', 'IP-адрес (v6)', 'Локальный IP', 'Публичный IP', 'Хост'],
-    }
-
+    record_count = 0
+    retry_attempts = 200
+    data_choices = choices_list
     try:
         connection = psycopg2.connect(
             dbname=project.db_name,
@@ -420,12 +408,8 @@ def generate_fake_data(request, pk, schema_name, table_name):
             port=project.db_port
         )
         cursor = connection.cursor()
-
-        # Получение количества записей в таблице
         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
         record_count = cursor.fetchone()[0]
-
-        # Получение информации о колонках
         cursor.execute("""
             SELECT column_name, data_type
             FROM information_schema.columns
@@ -452,10 +436,9 @@ def generate_fake_data(request, pk, schema_name, table_name):
         num_records = int(request.POST.get('num_records', 10))
 
         if user.pay_plan != True:
-            # Проверка лимита запросов перед генерацией данных
             if user.limit_request < num_records:
                 error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
-                return render(request, 'generate_fake_data.html', {
+                return render(request, template_name='generate_fake_data.html', context={
                     'project': project,
                     'schema_name': schema_name,
                     'table_name': table_name,
@@ -489,6 +472,7 @@ def generate_fake_data(request, pk, schema_name, table_name):
             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
 
             for _ in range(num_records):
+                print('-----------', _)
                 attempt = 0
                 while attempt < retry_attempts:
                     values = []
@@ -547,7 +531,8 @@ def generate_fake_data(request, pk, schema_name, table_name):
         except Exception as e:
             error_message = f"Ошибка вставки данных: {str(e)}"
 
-    return render(request, 'generate_fake_data.html', {
+    return render(request, template_name='generate_fake_data.html', context={
+        'info': info,
         'project': project,
         'schema_name': schema_name,
         'table_name': table_name,
@@ -558,6 +543,7 @@ def generate_fake_data(request, pk, schema_name, table_name):
     })
 
 
+# TODO
 def random_joke(request):
     """Генерация случайной шутки с выбором тематики"""
     info = Info.objects.first()
@@ -569,7 +555,7 @@ def random_joke(request):
     except Exception as e:
         jokes = f"Ошибка при получении шутки: {str(e)}"
     return render(request, template_name='random_joke.html', context={
-        'jokes': jokes,
         'info': info,
+        'jokes': jokes,
         'selected_category': selected_category
     })
