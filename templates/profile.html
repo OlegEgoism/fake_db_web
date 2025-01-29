@@ -81,6 +81,42 @@
             {% else %}
                 <p class="text-muted">У вас нет созданных проектов</p>
             {% endif %}
+        
+        
+        <div class="d-flex justify-content-end mt-3">
+    <a href="{% url 'edit_profile' %}" class="btn btn-warning">
+        <i class="bi bi-pencil-square"></i> Редактировать профиль
+    </a>
+    <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
+        <i class="bi bi-trash"></i> Удалить профиль
+    </button>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProfileModalLabel">Удаление профиля</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p>На вашу почту отправлен код подтверждения. Введите его ниже для удаления аккаунта.</p>
+                <form method="post" action="{% url 'delete_profile' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="confirm_code" class="form-label">Код подтверждения</label>
+                        <input type="text" class="form-control" id="confirm_code" name="confirm_code" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Удалить профиль</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+        
+        
         </div>
     </div>
 {% endblock %}

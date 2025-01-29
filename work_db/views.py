@@ -1,5 +1,9 @@
+import random
+
 import psycopg2
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from faker import Faker
@@ -10,7 +14,6 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from .models import Info, DataBaseUser, AppSettings
 import pyjokes
-
 
 
 def home(request):
@@ -67,12 +70,36 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            send_registration_email(user.email, user.username)
             return redirect('home')
     else:
         form = CustomUserCreationForm()
     return render(request, template_name='registration/register.html', context={
         'info': info,
         'form': form})
+
+
+def send_registration_email(user_email, username):
+    """Отправка email после регистрации"""
+    subject = "Добро пожаловать на сайт!"
+    message = (
+        f"Привет, {username}!\n\n"
+        "Вы успешно зарегистрировались на нашем сайте.\n"
+        "Теперь вы можете войти в систему и начать использовать все возможности."
+    )
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
+
+
+def generate_confirmation_code():
+    """Генерация 6-значного кода подтверждения"""
+    return str(random.randint(100000, 999999))
+
+
+def send_confirmation_email(user_email, confirmation_code):
+    """Отправка кода подтверждения на email пользователя"""
+    subject = "Подтверждение удаления аккаунта"
+    message = f"Ваш код для удаления аккаунта: {confirmation_code}"
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
 
 
 def logout_view(request):
@@ -147,7 +174,6 @@ def create_project(request):
     """Создать проект базы данных"""
     info = Info.objects.first()
     limit_create_db = AppSettings.objects.first().limit_create_db
-    print('----------', limit_create_db)
     user = request.user
     if not user.pay_plan:
         user_projects_count = DataBaseUser.objects.filter(user=user).count()
@@ -175,8 +201,6 @@ def my_projects(request):
     """Мои проекты базы данных"""
     info = Info.objects.first()
     projects = DataBaseUser.objects.filter(user=request.user).order_by('db_date_create')
-    for i in projects:
-        print(i.data_base_name)
     return render(request, template_name='my_projects.html', context={
         'info': info,
         'projects': projects})
