@@ -12,6 +12,8 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from faker import Faker
+
+from db_fake_generator.settings import EMAIL_HOST_USER
 from .data.data_choices_list import choices_list
 from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
 from django.shortcuts import render
@@ -92,7 +94,13 @@ def register(request):
                 "user": user,
                 "confirm_link": confirm_link
             })
-            send_mail(mail_subject, message, "noreply@example.com", [user.email])
+            send_mail(
+                subject=mail_subject,
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False
+            )
             return render(request, template_name="registration/registration_pending.html")
     else:
         form = CustomUserCreationForm()
