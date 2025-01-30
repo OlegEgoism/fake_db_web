@@ -40,6 +40,7 @@ def about_us(request):
     })
 
 
+# TODO
 @login_required
 def profile(request):
     """Страница профиля пользователя"""
@@ -92,7 +93,7 @@ def register(request):
                 "confirm_link": confirm_link
             })
             send_mail(mail_subject, message, "noreply@example.com", [user.email])
-            return render(request, "registration/registration_pending.html")
+            return render(request, template_name="registration/registration_pending.html")
     else:
         form = CustomUserCreationForm()
     return render(request, template_name='registration/register.html', context={
@@ -150,7 +151,7 @@ def confirm_account_deletion(request):
         if entered_code == deletion_code.code:
             user.delete()
             messages.success(request, "Ваш аккаунт успешно удален.")
-            return redirect("home")  # Перенаправляем на главную страницу
+            return redirect("home")
         else:
             messages.error(request, "Неверный код подтверждения. Попробуйте еще раз.")
     return render(request, template_name="confirm_account_deletion.html")
@@ -208,7 +209,7 @@ def database_edit(request, pk):
     else:
         form = DataBaseUserForm(instance=database)
         form.fields['db_password'].widget.attrs['value'] = database.db_password
-    return render(request, 'database_edit.html', {
+    return render(request, template_name='database_edit.html', context={
         'info': info,
         'form': form,
         'database': database
