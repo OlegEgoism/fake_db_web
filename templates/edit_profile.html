@@ -21,12 +21,11 @@
                     {% endif %}
                     {{ form }}
                     <div class="d-flex justify-content-between mt-3">
-                        <a href="{% url 'profile' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Назад
-                        </a>
+                        <a href="{% url 'profile' %}" class="btn btn-secondary"> <i class="bi bi-arrow-left"></i> Назад </a>
                         <button type="submit" class="btn btn-success">
                             <i class="bi bi-save"></i> Сохранить
                         </button>
+                        <a href="{% url 'password_reset' %}" class="btn btn-success"><i class="bi bi-lock-fill"></i> Сброс пароля </a>
                     </div>
                 </form>
             </div>

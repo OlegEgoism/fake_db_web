@@ -147,3 +147,4 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 # Ошибки отправки писем на электронную почту
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "logs/email.log")
+

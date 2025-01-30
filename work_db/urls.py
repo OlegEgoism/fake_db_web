@@ -21,7 +21,7 @@ from work_db.views import (
     table_columns,
     generate_fake_data,
 
-    random_joke, request_account_deletion, confirm_account_deletion,
+    random_joke, request_account_deletion, confirm_account_deletion, verify_email,
 )
 
 urlpatterns = [
@@ -34,8 +34,32 @@ urlpatterns = [
     path("confirm-delete/", confirm_account_deletion, name="confirm_account_deletion"),
 
     path('register/', register, name='register'),
+    path("verify-email/<uidb64>/<token>/", verify_email, name="verify_email"),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),
+
+    path('password-reset/', auth_views.PasswordResetView.as_view(
+        template_name='registration/password_reset_form.html',
+        email_template_name='registration/password_reset_email.html',
+        subject_template_name='registration/password_reset_subject.txt',
+        success_url='/password-reset/done/'
+    ), name='password_reset'),
+
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
+        template_name='registration/password_reset_done.html'
+    ), name='password_reset_done'),
+
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name='registration/password_reset_confirm.html',
+        success_url='/password-reset/complete/'
+    ), name='password_reset_confirm'),
+
+    path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='registration/password_reset_complete.html'
+    ), name='password_reset_complete'),
+
+
+
 
     path('database/<int:pk>/', database_detail, name='database_detail'),
     path('database/<int:pk>/edit/', database_edit, name='database_edit'),

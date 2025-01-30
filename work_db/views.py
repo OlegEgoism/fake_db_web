@@ -2,9 +2,15 @@ import random
 import psycopg2
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from faker import Faker
 from .data.data_choices_list import choices_list
 from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
@@ -12,7 +18,10 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import logout
 from .models import Info, DataBaseUser, AppSettings, DeletionConfirmation
+from django.contrib.auth import get_user_model
 import pyjokes
+
+User = get_user_model()
 
 
 def home(request):
@@ -65,15 +74,25 @@ def edit_profile(request):
 
 
 def register(request):
-    """Регистрация пользователя"""
+    """Регистрация пользователя с подтверждением по email"""
     info = Info.objects.first()
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            send_registration_email(user.email, user.username)
-            return redirect('home')
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            current_site = get_current_site(request)
+            mail_subject = "Подтвердите ваш email"
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            confirm_link = f"http://{current_site.domain}/verify-email/{uid}/{token}/"
+            message = render_to_string(template_name="registration/verify_email.html", context={
+                "user": user,
+                "confirm_link": confirm_link
+            })
+            send_mail(mail_subject, message, "noreply@example.com", [user.email])
+            return render(request, "registration/registration_pending.html")
     else:
         form = CustomUserCreationForm()
     return render(request, template_name='registration/register.html', context={
@@ -82,15 +101,20 @@ def register(request):
     })
 
 
-def send_registration_email(user_email, username):
-    """Отправка email после регистрации"""
-    subject = "Добро пожаловать на сайт!"
-    message = (
-        f"Привет, {username}!\n\n"
-        "Вы успешно зарегистрировались на нашем сайте.\n"
-        "Теперь вы можете войти в систему и начать использовать все возможности."
-    )
-    send_mail(subject, message, settings.EMAIL_HOST_USER, [user_email])
+def verify_email(request, uidb64, token):
+    """Подтверждение email"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        if user and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            login(request, user)
+            return redirect("home")
+        else:
+            return render(request, template_name="registration/invalid_verification.html")
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return render(request, template_name="registration/invalid_verification.html")
 
 
 @login_required

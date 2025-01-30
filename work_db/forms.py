@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, DataBaseUser
 
 
+
 class CustomUserCreationForm(UserCreationForm):
     """Регистрация пользователя"""
     email = forms.EmailField(required=True, label="Email")
@@ -49,3 +50,6 @@ class DataBaseUserForm(forms.ModelForm):
             'db_host': forms.TextInput(attrs={'class': 'form-control'}),
             'db_port': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+
