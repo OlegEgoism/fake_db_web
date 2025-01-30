@@ -12,7 +12,7 @@
             <h5><strong>Таблица:</strong> {{ table_name }}</h5>
             <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
             <hr>
-        
+
             <h5 class="text-top">Доступные настройки для генерирования данных:</h5>
             {% if error_message %}
                 <div class="alert alert-danger">
@@ -22,7 +22,7 @@
 
             {% if inserted_rows %}
                 <div class="alert alert-success">
-                    <i class="bi bi-check-circle-fill"></i> Успешно добавлено {{ inserted_rows }} строк(и)
+                    <i class="bi bi-check-circle-fill"></i> В таблицу {{ table_name }} успешно записано: {{ inserted_rows }} строк(и)
                 </div>
             {% endif %}
 
@@ -46,14 +46,13 @@
                             <td>{{ column.name }}</td>
                             <td>{{ column.type }}</td>
                             <td>
-<select class="form-select" name="column_{{ column.name }}">
-    {% for choice in column.choices %}
-        <option value="{{ choice }}" {% if request.POST|get_item:"column_{{ column.name }}" == choice %}selected{% endif %}>
-            {{ choice }}
-        </option>
-    {% endfor %}
-</select>
-
+                                <select class="form-select" name="column_{{ column.name }}">
+                                    {% for choice in column.choices %}
+                                        <option value="{{ choice }}">
+                                            {{ choice }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </td>
                         </tr>
                     {% endfor %}

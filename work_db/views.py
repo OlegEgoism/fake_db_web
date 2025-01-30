@@ -513,28 +513,17 @@ def generate_fake_data(request, pk, schema_name, table_name):
                         if attempt == retry_attempts:
                             raise
             connection.commit()
-
-            # Обновление количества записей после вставки
             cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
             record_count = cursor.fetchone()[0]
-
             cursor.close()
             connection.close()
-
             if user.pay_plan != True:
                 user.limit_request = max(0, user.limit_request - num_records)
                 user.save()
-
         except psycopg2.IntegrityError as e:
             error_message = f"Ошибка вставки данных (дубликат): {str(e)}"
         except Exception as e:
             error_message = f"Ошибка вставки данных: {str(e)}"
-
-    # selected_values = {
-    #     f"column_{col['name']}": request.POST.get(f"column_{col['name']}", "")
-    #     for col in column_data
-    # }
-
     return render(request, template_name='generate_fake_data.html', context={
         'info': info,
         'project': project,
@@ -544,7 +533,6 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'inserted_rows': inserted_rows,
         'record_count': record_count,
         'error_message': error_message,
-        # 'selected_values': selected_values
     })
 
 
