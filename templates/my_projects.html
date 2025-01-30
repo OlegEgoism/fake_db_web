@@ -15,6 +15,8 @@
                             </h5>
                             <hr>
                             <p><strong>Дата создания:</strong> {{ project.db_date_create|date:"d.m.Y - H:i" }}</p>
+                            <p><strong>Дата изменения:</strong> {{ project.db_date_edit|date:"d.m.Y - H:i" }}</p>
+                            
                             <div class="d-flex justify-content-end gap-3">
                                 <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-success"> <i class="bi bi-database"></i> Подключиться</a>
                                 <a href="{% url 'database_edit' project.pk %}" class="btn btn-success"> <i class="bi bi-gear-fill"></i> Настройки</a>

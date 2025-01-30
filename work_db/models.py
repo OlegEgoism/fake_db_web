@@ -82,6 +82,7 @@ class DataBaseUser(models.Model):
     db_host = models.CharField(verbose_name="Хост", max_length=255)
     db_port = models.CharField(verbose_name="Порт", max_length=8)
     db_date_create = models.DateTimeField(verbose_name="Дата создания проекта", auto_now_add=True)
+    db_date_edit = models.DateTimeField(verbose_name="Дата изменения", auto_now=True)
     user = models.ForeignKey(CustomUser, verbose_name="Пользователь", on_delete=models.CASCADE, related_name='data_base_user')
     data_base_name = models.ForeignKey(DataBaseName, verbose_name="База данных", on_delete=models.CASCADE, related_name='data_base_name')
 

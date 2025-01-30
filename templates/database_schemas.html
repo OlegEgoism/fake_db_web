@@ -3,10 +3,11 @@
 {% block title %}Схемы базы данных{% endblock %}
 
 {% block content %}
-    <h2 class="text-center mb-4">Схемы базы данной "{{ project.db_name }}"</h2>
+    <h2 class="text-center mb-4">Схемы базы данной</h2>
     <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
-        <div class="card-body text-center">
-            <h5>Проект: {{ project.db_project }}</h5>
+        <div class="card-body text-top">
+                        <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+            <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
             <hr>
 
             {% if error_message %}

@@ -3,70 +3,75 @@
 {% block title %}Генерация данных для {{ table_name }}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Генерация данных для таблицы "{{ table_name }}"</h2>
-        <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
-            <div class="card-body text-center">
-                <h5>Проект: {{ project.db_project }}</h5>
-                <hr>
+    <h2 class="text-center mb-4">Генерация данных в таблице</h2>
+    <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
+        <div class="card-body text-top">
+            <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+            <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
+            <h5><strong>Схема:</strong> {{ schema_name }}</h5>
+            <h5><strong>Таблица:</strong> {{ table_name }}</h5>
+            <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
+            <hr>
+        
+            <h5 class="text-top">Доступные настройки для генерирования данных:</h5>
+            {% if error_message %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
+                </div>
+            {% endif %}
 
-                {% if error_message %}
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
-                    </div>
-                {% endif %}
+            {% if inserted_rows %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> Успешно добавлено {{ inserted_rows }} строк(и)
+                </div>
+            {% endif %}
 
-                {% if inserted_rows %}
-                    <div class="alert alert-success">
-                        <i class="bi bi-check-circle-fill"></i> Успешно добавлено {{ inserted_rows }} строк(и)
-                    </div>
-                {% endif %}
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3 d-flex align-items-center">
-                        <label for="num_records" class="form-label mb-0 me-3 flex-shrink-0" style="min-width: 300px;">Количество записей (максимально 100000 шт.):</label>
-                        <input type="number" class="form-control w-auto" id="num_records" name="num_records" min="1" max="100000" value="1000" required>
-                    </div>
-                    <h5 class="text-center">Настройка строк:</h5>
-                    <table class="table table-striped text-start">
-                        <thead>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3 d-flex align-items-center">
+                    <label for="num_records" class="form-label mb-0 me-3 flex-shrink-0" style="min-width: 300px;">Количество записей (максимально 100000 шт.):</label>
+                    <input type="number" class="form-control w-auto" id="num_records" name="num_records" min="1" max="100000" value="1000" required>
+                </div>
+                <table class="table table-striped text-start">
+                    <thead>
+                    <tr>
+                        <th>Название столбца</th>
+                        <th>Тип данных</th>
+                        <th>Выбор значения</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for column in column_data %}
                         <tr>
-                            <th>Название столбца</th>
-                            <th>Тип данных</th>
-                            <th>Выбор значения</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for column in column_data %}
-                            <tr>
-                                <td>{{ column.name }}</td>
-                                <td>{{ column.type }}</td>
-                                <td>
-                                    <select class="form-select" name="column_{{ column.name }}">
-                                        {% for choice in column.choices %}
-                                            <option value="{{ choice }}">{{ choice }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            <td>{{ column.name }}</td>
+                            <td>{{ column.type }}</td>
+                            <td>
+<select class="form-select" name="column_{{ column.name }}">
+    {% for choice in column.choices %}
+        <option value="{{ choice }}" {% if request.POST|get_item:"column_{{ column.name }}" == choice %}selected{% endif %}>
+            {{ choice }}
+        </option>
+    {% endfor %}
+</select>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Назад
-                        </a>
-                        <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success">
-                            <i class="bi bi-arrow-repeat"></i> Обновить данные
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-arrow-up-right-circle"></i> Сгенерировать
-                        </button>
-                    </div>
-                </form>
-            </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success">
+                        <i class="bi bi-arrow-repeat"></i> Обновить данные
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-arrow-up-right-circle"></i> Сгенерировать данные
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 {% endblock %}

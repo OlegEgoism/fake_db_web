@@ -6,10 +6,8 @@
     <h2 class="text-center mb-4">Результат подключения</h2>
     <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
         <div class="card-body text-top">
-            <h5>Проект: {{ project.db_project }}</h5>
-            <hr>
-            <p><strong>База данных:</strong> {{ project.db_name }}</p>
-            <p><strong>Дата создания:</strong> {{ project.db_date_create|date:"d.m.Y - H:i" }}</p>
+            <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+            <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
             <hr>
             {% if connection_status %}
                 <div class="alert alert-success">

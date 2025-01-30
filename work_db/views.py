@@ -472,7 +472,6 @@ def generate_fake_data(request, pk, schema_name, table_name):
             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
 
             for _ in range(num_records):
-                print('-----------', _)
                 attempt = 0
                 while attempt < retry_attempts:
                     values = []
@@ -531,6 +530,11 @@ def generate_fake_data(request, pk, schema_name, table_name):
         except Exception as e:
             error_message = f"Ошибка вставки данных: {str(e)}"
 
+    # selected_values = {
+    #     f"column_{col['name']}": request.POST.get(f"column_{col['name']}", "")
+    #     for col in column_data
+    # }
+
     return render(request, template_name='generate_fake_data.html', context={
         'info': info,
         'project': project,
@@ -539,7 +543,8 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'column_data': column_data,
         'inserted_rows': inserted_rows,
         'record_count': record_count,
-        'error_message': error_message
+        'error_message': error_message,
+        # 'selected_values': selected_values
     })
 
 

@@ -3,18 +3,21 @@
 {% block title %}Колонки таблицы {{ table_name }}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Колонки таблицы "{{ table_name }}"</h2>
+        <h2 class="text-center mb-4">Колонки таблицы</h2>
         <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
-            <div class="card-body text-center">
-                <h5>Проект: {{ project.db_project }}</h5>
+            <div class="card-body text-top">
+                <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+                <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
+                <h5><strong>Схема:</strong> {{ schema_name }}</h5>
+                <h5><strong>Таблица:</strong> {{ table_name }}</h5>
+                <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
                 <hr>
                 {% if error_message %}
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
                     </div>
                 {% else %}
-                    <h5>Колонки таблицы:</h5>
+                      <h5>Доступные колонки таблицы:</h5>
                     {% if columns %}
                         <table class="table table-striped">
                             <thead>
@@ -43,11 +46,10 @@
                         <i class="bi bi-arrow-left"></i> Назад
                     </a>
                     <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3">
-                        <i class="bi bi-database-add"></i> Сгенерировать данные
+                        <i class="bi bi-database-add"></i> Перейти в таблицу
                     </a>
                 </div>
 
             </div>
         </div>
-    </div>
 {% endblock %}
