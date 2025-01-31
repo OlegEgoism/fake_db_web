@@ -47,85 +47,12 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <!-- Кнопка для вызова модального окна -->
-                        <button type="button" class="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="bi bi-box-arrow-in-right"></i> Войти
-                        </button>
-                        <!-- Модальное окно для входа -->
-                        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="loginModalLabel">Авторизация</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="post" action="{% url 'login' %}">
-                                            {% csrf_token %}
-                                            <div class="mb-3">
-                                                <label for="username" class="form-label">Имя пользователя</label>
-                                                <input type="text" class="form-control" id="username" name="username" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="password" class="form-label">Пароль</label>
-                                                <input type="password" class="form-control" id="password" name="password" required>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Войти</button>
-                                            <a href="{% url 'password_reset' %}" class="btn btn-success"><i class="bi bi-lock-fill"></i> Забыли пароль? </a>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
+                        <!-- Кнопка Войти -->
+                        <a href="{% url 'login' %}" class="btn btn-outline-light ms-2">
+                            <i class="bi bi-box-arrow-in-right"></i> Войти </a></li>
                     <li class="nav-item">
                         <!-- Кнопка регистрации -->
-                        <button type="button" class="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            <i class="bi bi-person-plus"></i> Регистрация
-                        </button>
-                        <!-- Модальное окно регистрации -->
-                        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="registerModalLabel">Регистрация</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="post" action="{% url 'register' %}" enctype="multipart/form-data">
-                                            {% csrf_token %}
-
-                                            <div class="mb-3">
-                                                <label for="id_username" class="form-label">Имя пользователя</label>
-                                                <input type="text" class="form-control" id="id_username" name="username" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="id_email" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="id_email" name="email" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="id_photo" class="form-label">Фото</label>
-                                                <input type="file" class="form-control" id="id_photo" name="photo" accept="image/*">
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="id_password1" class="form-label">Пароль</label>
-                                                <input type="password" class="form-control" id="id_password1" name="password1" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="id_password2" class="form-label">Подтверждение пароля</label>
-                                                <input type="password" class="form-control" id="id_password2" name="password2" required>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <a href="{% url 'register' %}" class="btn btn-outline-light ms-2"> <i class="bi bi-person-plus"></i> Регистрация </a>
                     </li>
                 {% endif %}
             </ul>

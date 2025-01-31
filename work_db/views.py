@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from django.template.loader import render_to_string
@@ -76,6 +76,40 @@ def edit_profile(request):
     })
 
 
+# def register(request):
+#     """Регистрация пользователя с подтверждением по email"""
+#     info = Info.objects.first()
+#     if request.method == "POST":
+#         form = CustomUserCreationForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.is_active = False
+#             user.save()
+#             current_site = get_current_site(request)
+#             mail_subject = "Подтвердите ваш email"
+#             uid = urlsafe_base64_encode(force_bytes(user.pk))
+#             token = default_token_generator.make_token(user)
+#             confirm_link = f"http://{current_site.domain}/verify-email/{uid}/{token}/"
+#             message = render_to_string(template_name="registration/verify_email.html", context={
+#                 "user": user,
+#                 "confirm_link": confirm_link
+#             })
+#             send_mail(
+#                 subject=mail_subject,
+#                 message=message,
+#                 from_email=settings.EMAIL_HOST_USER,
+#                 recipient_list=[user.email],
+#                 fail_silently=False
+#             )
+#             return render(request, template_name="registration/registration_pending.html")
+#     else:
+#         form = CustomUserCreationForm()
+#     return render(request, template_name='registration/register.html', context={
+#         'info': info,
+#         'form': form
+#     })
+
+
 def register(request):
     """Регистрация пользователя с подтверждением по email"""
     info = Info.objects.first()
@@ -90,24 +124,24 @@ def register(request):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             confirm_link = f"http://{current_site.domain}/verify-email/{uid}/{token}/"
-            message = render_to_string(template_name="registration/verify_email.html", context={
+
+            html_message = render_to_string("registration/verify_email.html", {
                 "user": user,
                 "confirm_link": confirm_link
             })
-            send_mail(
+            email = EmailMessage(
                 subject=mail_subject,
-                message=message,
+                body=html_message,
                 from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[user.email],
-                fail_silently=False
+                to=[user.email]
             )
-            return render(request, template_name="registration/registration_pending.html")
+            email.content_subtype = "html"  # Указываем, что это HTML-письмо
+            email.send()
+            return render(request, "registration/registration_pending.html")
     else:
         form = CustomUserCreationForm()
-    return render(request, template_name='registration/register.html', context={
-        'info': info,
-        'form': form
-    })
+    return render(request, "registration/register.html", {"info": info, "form": form})
+
 
 
 def verify_email(request, uidb64, token):

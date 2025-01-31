@@ -1,7 +1,75 @@
-Здравствуйте, {{ user.username }}!
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение регистрации</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
 
-Вы зарегистрировались на нашем сайте. Пожалуйста, подтвердите вашу почту, перейдя по ссылке:
+        .container {
+            max-width: 860px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
 
-<a href="{{ confirm_link }}">{{ confirm_link }}</a>
+        .message-box {
+            border: 1px solid #d3d3d3;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
 
-Если вы не регистрировались, просто проигнорируйте это письмо.
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border: 2px solid #007bff;
+            color: #007bff;
+            border-radius: 5px;
+            background-color: transparent;
+        }
+
+        .btn:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 style="text-align: center">Подтверждение регистрации</h1>
+    <div class="message-box">
+        <h2>Здравствуйте, {{ user.username }}!</h2>
+        <p>Вы успешно зарегистрировались на нашем сайте. Пожалуйста, подтвердите вашу почту, перейдя по ссылке ниже:</p>
+        <a href="{{ confirm_link }}" class="btn">Подтвердить email</a>
+        <p>Если вы не регистрировались, просто проигнорируйте это письмо или свяжитесь со службой поддержки.</p>
+        <div class="footer">
+            <p>С уважением, Администрация сайта.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
