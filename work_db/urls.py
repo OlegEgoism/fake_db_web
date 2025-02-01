@@ -6,11 +6,11 @@ from work_db.views import (
 
     profile,
     edit_profile,
+    request_account_deletion,
+    confirm_account_deletion,
 
     register,
     logout_view,
-    request_account_deletion,
-    confirm_account_deletion,
     verify_email,
 
     database_detail,
@@ -26,7 +26,6 @@ from work_db.views import (
     generate_fake_data,
 
     random_joke,
-
 )
 
 urlpatterns = [
@@ -45,7 +44,6 @@ urlpatterns = [
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html',
                                                                  email_template_name='registration/password_reset_email.html',
                                                                  html_email_template_name='registration/password_reset_email.html',
-                                                                 # subject_template_name='registration/password_reset_subject.txt',
                                                                  success_url='/password-reset/done/'
                                                                  ), name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),

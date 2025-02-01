@@ -38,19 +38,21 @@ body {
     color: #fff;
 }
 
+/*Аватар профиля*/
 .profile-photo-container {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
     overflow: hidden;
+    border-radius: 50%;
     display: inline-block;
-    border: 3px solid #ddd;
 }
 
 .profile-photo {
-    width: 100%;
-    height: 100%;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-
+.profile-photo:hover {
+    transform: scale(1.5);
+}
