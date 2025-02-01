@@ -80,7 +80,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     def preview_photo(self, obj):
         if obj.photo:
-            return mark_safe(f'<img src="{obj.photo.url}" width="80" height="80" style="border-radius: 50%;" />')
+            return mark_safe(f'<img src="{obj.photo.url}" width="80" height="80" style="border-radius: 20%;" />')
         else:
             return 'Нет фотографии'
 

@@ -41,14 +41,14 @@ body {
 /*Аватар профиля*/
 .profile-photo-container {
     overflow: hidden;
-    border-radius: 50%;
+    border-radius: 20%;
     display: inline-block;
 }
 
 .profile-photo {
     width: 150px;
     height: 150px;
-    border-radius: 50%;
+    border-radius: 20%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
@@ -56,3 +56,13 @@ body {
 .profile-photo:hover {
     transform: scale(1.5);
 }
+
+
+.avatar-img {
+    width: 20px;
+    height: 20px;
+    border-radius: 20%; /* Делает аватар круглым */
+    object-fit: cover; /* Обрезает изображение по размеру */
+    border: 1px solid #fff; /* Тонкая белая рамка для видимости */
+}
+
