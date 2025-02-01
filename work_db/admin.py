@@ -98,11 +98,20 @@ class CustomUserAdmin(admin.ModelAdmin):
 @admin.register(DataBaseName)
 class DataBaseNameAdmin(admin.ModelAdmin):
     """База данных"""
-    list_display = 'name',
+    list_display = 'name', 'preview_images_db'
     list_filter = 'name',
+    readonly_fields = 'preview_images_db',
     search_fields = 'name', 'db_project',
     search_help_text = 'Поиск по названию базы данных'
     list_per_page = 20
+
+    def preview_images_db(self, obj):
+        if obj.images_db:
+            return mark_safe(f'<img src="{obj.images_db.url}" width="80" height="80" style="border-radius: 20%;" />')
+        else:
+            return 'Нет фотографии'
+
+    preview_images_db.short_description = 'Фотография'
 
 
 @admin.register(DataBaseUser)

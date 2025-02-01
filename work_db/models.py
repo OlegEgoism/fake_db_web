@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -63,6 +62,24 @@ class DeletionConfirmation(models.Model):
 class DataBaseName(models.Model):
     """Список баз данных"""
     name = models.CharField(verbose_name="Название базы данных", max_length=100, unique=True)
+    images_db = models.ImageField(verbose_name="Фото", upload_to='images_db/', default='images_db/default.png', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        image_mapping = {
+            'Hive': 'images_db/hive.png',
+            'Greenplum': 'images_db/greenplum.png',
+            'MySQL': 'images_db/mysql.png',
+            'Oracle': 'images_db/oracle.png',
+            'PostgreSQL': 'images_db/postgresql.png'
+        }
+
+        # Установка изображения по умолчанию в зависимости от названия базы данных
+        if self.name in image_mapping:
+            self.images_db = image_mapping[self.name]
+        else:
+            self.images_db = 'images_db/default.png'
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -70,7 +87,7 @@ class DataBaseName(models.Model):
     class Meta:
         verbose_name = "Список баз данных"
         verbose_name_plural = "Списки баз данных"
-        ordering = 'name',
+        ordering = ('name',)
 
 
 class DataBaseUser(models.Model):
