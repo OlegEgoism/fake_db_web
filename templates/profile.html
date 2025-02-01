@@ -8,18 +8,18 @@
 
     <div class="card shadow-lg border-0 mx-auto p-4" style="max-width: 800px;">
         <div class="row g-4 align-items-center">
-            
+
             <!-- Левая колонка с фото -->
-<div class="col-md-4 text-center">
-    <div class="profile-photo-container">
-        {% if user.photo %}
-            <img src="{{ user.photo.url }}" class="profile-photo" alt="Фото профиля">
-        {% else %}
-            <img src="{% static 'img/default-profile.png' %}" class="profile-photo" alt="Фото профиля">
-        {% endif %}
-    </div>
-    <h4 class="mt-3">{{ user.username }}</h4>
-</div>
+            <div class="col-md-4 text-center">
+                <div class="profile-photo-container">
+                    {% if user.photo %}
+                        <img src="{{ user.photo.url }}" class="profile-photo" alt="Фото профиля">
+                    {% else %}
+                        <img src="{% static 'img/default-profile.png' %}" class="profile-photo" alt="Фото профиля">
+                    {% endif %}
+                </div>
+                <h4 class="mt-3">{{ user.username }}</h4>
+            </div>
 
 
             <!-- Правая колонка с информацией -->
@@ -47,14 +47,14 @@
         <hr>
 
         <div class="d-flex justify-content-between mt-3">
-            <a href="{% url 'edit_profile' %}" class="btn btn-success"> 
-                <i class="bi bi-pencil-square"></i> Редактировать профиль 
+            <a href="{% url 'edit_profile' %}" class="btn btn-success">
+                <i class="bi bi-pencil-square"></i> Редактировать профиль
             </a>
             <a href="{% url 'password_reset' %}" class="btn btn-success">
-                <i class="bi bi-lock-fill"></i> Сброс пароля 
+                <i class="bi bi-lock-fill"></i> Сброс пароля
             </a>
-            <a href="{% url 'request_account_deletion' %}" class="btn btn-danger"> 
-                <i class="bi bi-trash"></i> Удалить аккаунт 
+            <a href="{% url 'request_account_deletion' %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Удалить аккаунт
             </a>
         </div>
 
@@ -81,8 +81,12 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="text-muted">У вас нет созданных проектов</p>
+            <div class="d-flex justify-content-center align-items-center flex-column mt-4">
+                <p class="text-muted text-center">У вас нет созданных проектов</p>
+                <a href="{% url 'create_project' %}" class="btn btn-success mt-2">
+                    <i class="bi bi-plus-lg"></i> Создать проект
+                </a>
+            </div>
         {% endif %}
-
     </div>
 {% endblock %}

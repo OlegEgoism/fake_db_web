@@ -5,15 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMultiAlternatives, EmailMessage
+from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from faker import Faker
-
-from db_fake_generator.settings import EMAIL_HOST_USER
 from .data.data_choices_list import choices_list
 from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
 from django.shortcuts import render
@@ -76,40 +74,6 @@ def edit_profile(request):
     })
 
 
-# def register(request):
-#     """Регистрация пользователя с подтверждением по email"""
-#     info = Info.objects.first()
-#     if request.method == "POST":
-#         form = CustomUserCreationForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             user.is_active = False
-#             user.save()
-#             current_site = get_current_site(request)
-#             mail_subject = "Подтвердите ваш email"
-#             uid = urlsafe_base64_encode(force_bytes(user.pk))
-#             token = default_token_generator.make_token(user)
-#             confirm_link = f"http://{current_site.domain}/verify-email/{uid}/{token}/"
-#             message = render_to_string(template_name="registration/verify_email.html", context={
-#                 "user": user,
-#                 "confirm_link": confirm_link
-#             })
-#             send_mail(
-#                 subject=mail_subject,
-#                 message=message,
-#                 from_email=settings.EMAIL_HOST_USER,
-#                 recipient_list=[user.email],
-#                 fail_silently=False
-#             )
-#             return render(request, template_name="registration/registration_pending.html")
-#     else:
-#         form = CustomUserCreationForm()
-#     return render(request, template_name='registration/register.html', context={
-#         'info': info,
-#         'form': form
-#     })
-
-
 def register(request):
     """Регистрация пользователя с подтверждением по email"""
     info = Info.objects.first()
@@ -124,8 +88,7 @@ def register(request):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             confirm_link = f"http://{current_site.domain}/verify-email/{uid}/{token}/"
-
-            html_message = render_to_string("registration/verify_email.html", {
+            html_message = render_to_string(template_name="registration/verify_email.html", context={
                 "user": user,
                 "confirm_link": confirm_link
             })
@@ -135,13 +98,15 @@ def register(request):
                 from_email=settings.EMAIL_HOST_USER,
                 to=[user.email]
             )
-            email.content_subtype = "html"  # Указываем, что это HTML-письмо
+            email.content_subtype = "html"
             email.send()
-            return render(request, "registration/registration_pending.html")
+            return render(request, template_name="registration/registration_pending.html")
     else:
         form = CustomUserCreationForm()
-    return render(request, "registration/register.html", {"info": info, "form": form})
-
+    return render(request, template_name="registration/register.html", context={
+        "info": info,
+        "form": form
+    })
 
 
 def verify_email(request, uidb64, token):
@@ -220,7 +185,6 @@ def database_edit(request, pk):
     info = Info.objects.first()
     connect_timeout = AppSettings.objects.first().connect_timeout_db
     database = get_object_or_404(DataBaseUser, pk=pk)
-    # form = DataBaseUserForm(instance=database)
     if request.method == 'POST':
         form = DataBaseUserForm(request.POST, instance=database)
         if form.is_valid():
@@ -408,7 +372,6 @@ def table_columns(request, pk, schema_name, table_name):
     columns = []
     record_count = 0
     error_message = None
-
     try:
         connection = psycopg2.connect(
             dbname=project.db_name,
@@ -418,8 +381,6 @@ def table_columns(request, pk, schema_name, table_name):
             port=project.db_port
         )
         cursor = connection.cursor()
-
-        # Получение колонок таблицы
         cursor.execute("""
             SELECT 
                 column_name, 
@@ -434,16 +395,12 @@ def table_columns(request, pk, schema_name, table_name):
               AND cols.table_name = %s;
         """, (schema_name, table_name))
         columns = cursor.fetchall()
-
-        # Получение количества записей в таблице
         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
         record_count = cursor.fetchone()[0]
-
         cursor.close()
         connection.close()
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
-
     return render(request, template_name='table_columns.html', context={
         'info': info,
         'project': project,
@@ -484,7 +441,6 @@ def generate_fake_data(request, pk, schema_name, table_name):
               AND table_name = %s;
         """, (schema_name, table_name))
         columns = cursor.fetchall()
-
         column_data = [
             {
                 'name': col[0],
@@ -493,15 +449,12 @@ def generate_fake_data(request, pk, schema_name, table_name):
             }
             for col in columns
         ]
-
         cursor.close()
         connection.close()
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
-
     if request.method == 'POST':
         num_records = int(request.POST.get('num_records', 10))
-
         if user.pay_plan != True:
             if user.limit_request < num_records:
                 error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
@@ -513,7 +466,6 @@ def generate_fake_data(request, pk, schema_name, table_name):
                     'record_count': record_count,
                     'error_message': error_message
                 })
-
         try:
             connection = psycopg2.connect(
                 dbname=project.db_name,
@@ -523,7 +475,6 @@ def generate_fake_data(request, pk, schema_name, table_name):
                 port=project.db_port
             )
             cursor = connection.cursor()
-
             cursor.execute("""
                 SELECT column_name, data_type
                 FROM information_schema.columns
@@ -531,13 +482,10 @@ def generate_fake_data(request, pk, schema_name, table_name):
                   AND table_name = %s;
             """, (schema_name, table_name))
             columns = cursor.fetchall()
-
             column_data = [{'name': col[0], 'type': col[1]} for col in columns]
-
             column_names = [f'"{col["name"]}"' for col in column_data]  # Кавычки для SQL
             placeholders = ', '.join(['%s' for _ in column_data])
             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
-
             for _ in range(num_records):
                 attempt = 0
                 while attempt < retry_attempts:
