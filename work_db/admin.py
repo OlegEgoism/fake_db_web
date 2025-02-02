@@ -68,7 +68,7 @@ class CustomUserAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions',)}),
     )
-    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'pay_plan', 'last_login', 'is_active',
+    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'db_count',  'pay_plan', 'last_login', 'is_active',
     list_filter = 'pay_plan', 'is_staff', 'is_active', 'date_joined',
     list_editable = 'pay_plan', 'is_active',
     search_fields = 'username', 'email', 'phone_number',
@@ -94,11 +94,19 @@ class CustomUserAdmin(admin.ModelAdmin):
                 return
         super().save_model(request, obj, form, change)
 
+    def db_count(self, obj):
+        if obj.data_base_user.count() == 0:
+            return 'Нет проектов'
+        else:
+            return obj.data_base_user.count()
+
+    db_count.short_description = 'Количество проектов'
+
 
 @admin.register(DataBaseName)
 class DataBaseNameAdmin(admin.ModelAdmin):
     """База данных"""
-    list_display = 'name', 'preview_images_db'
+    list_display = 'name', 'preview_images_db', 'db_count'
     list_filter = 'name',
     readonly_fields = 'preview_images_db',
     search_fields = 'name', 'db_project',
@@ -112,6 +120,14 @@ class DataBaseNameAdmin(admin.ModelAdmin):
             return 'Нет фотографии'
 
     preview_images_db.short_description = 'Фотография'
+
+    def db_count(self, obj):
+        if obj.data_base_name.count() == 0:
+            return 'Нет проектов'
+        else:
+            return obj.data_base_name.count()
+
+    db_count.short_description = 'Количество проектов'
 
 
 @admin.register(DataBaseUser)

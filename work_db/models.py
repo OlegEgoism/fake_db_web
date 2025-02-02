@@ -35,7 +35,7 @@ class CustomUser(AbstractUser):
     photo = models.ImageField(verbose_name="Фото", upload_to='user_photo/', default='user_photo/default.png', blank=True, null=True)
     phone_number = models.CharField(verbose_name="Телефон", max_length=15, blank=True, null=True)
     pay_plan = models.BooleanField(verbose_name="Расширенный доступ", default=False)
-    limit_request = models.IntegerField(verbose_name="Лимит строк генерации данных", default=10000000)
+    limit_request = models.IntegerField(verbose_name="Лимит строк", default=10000000)
 
     def __str__(self):
         return self.username
@@ -62,22 +62,22 @@ class DeletionConfirmation(models.Model):
 class DataBaseName(models.Model):
     """Список баз данных"""
     name = models.CharField(verbose_name="Название базы данных", max_length=100, unique=True)
-    images_db = models.ImageField(verbose_name="Фото", upload_to='images_db/', default='images_db/default.png', blank=True, null=True)
+    images_db = models.ImageField(verbose_name="Фото", upload_to='images_db/', default='images_db/default.jpg', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         image_mapping = {
-            'Hive': 'images_db/hive.png',
-            'Greenplum': 'images_db/greenplum.png',
-            'MySQL': 'images_db/mysql.png',
-            'Oracle': 'images_db/oracle.png',
-            'PostgreSQL': 'images_db/postgresql.png'
+            'Hive': 'images_db/Hive.jpg',
+            'Greenplum': 'images_db/Greenplum.jpg',
+            'MySQL': 'images_db/MySQL.jpg',
+            'Oracle': 'images_db/Oracle.jpg',
+            'PostgreSQL': 'images_db/PostgreSQL.jpg'
         }
 
         # Установка изображения по умолчанию в зависимости от названия базы данных
         if self.name in image_mapping:
             self.images_db = image_mapping[self.name]
         else:
-            self.images_db = 'images_db/default.png'
+            self.images_db = 'images_db/default.jpg'
 
         super().save(*args, **kwargs)
 
@@ -87,7 +87,7 @@ class DataBaseName(models.Model):
     class Meta:
         verbose_name = "Список баз данных"
         verbose_name_plural = "Списки баз данных"
-        ordering = ('name',)
+        ordering = 'name',
 
 
 class DataBaseUser(models.Model):

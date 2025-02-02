@@ -3,53 +3,53 @@
 {% block title %}Колонки таблицы {{ table_name }}{% endblock %}
 
 {% block content %}
-        <h2 class="text-center mb-4">Колонки таблицы</h2>
-        <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
-            <div class="card-body text-top">
-                <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
-                <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
-                <h5><strong>Схема:</strong> {{ schema_name }}</h5>
-                <h5><strong>Таблица:</strong> {{ table_name }}</h5>
-                <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
-                <hr>
-                {% if error_message %}
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
-                    </div>
-                {% else %}
-                      <h5>Доступные колонки таблицы:</h5>
-                    {% if columns %}
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>Название</th>
-                                <th>Тип</th>
-                                <th>Комментарий</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for column in columns %}
-                                <tr>
-                                    <td>{{ column.0 }}</td>
-                                    <td>{{ column.1 }}</td>
-                                    <td>{{ column.2 }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p class="text-muted">В данной таблице колонок не найдено.</p>
-                    {% endif %}
-                {% endif %}
-                <div class="d-flex justify-content-between mt-3">
-                    <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3">
-                        <i class="bi bi-arrow-left"></i> Назад
-                    </a>
-                    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3">
-                        <i class="bi bi-database-add"></i> Перейти в таблицу
-                    </a>
+    <h2 class="text-center mb-4">Колонки таблицы</h2>
+    <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
+        <div class="card-body text-top">
+            <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+            <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
+            <h5><strong>Схема:</strong> {{ schema_name }}</h5>
+            <h5><strong>Таблица:</strong> {{ table_name }}</h5>
+            <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
+            <hr>
+            {% if error_message %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
                 </div>
-
+            {% else %}
+                <h5>Доступные колонки таблицы:</h5>
+                {% if columns %}
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Комментарий</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for column in columns %}
+                            <tr>
+                                <td>{{ column.0 }}</td>
+                                <td>{{ column.1 }}</td>
+                                <td>{{ column.2 }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted">В данной таблице колонок не найдено.</p>
+                {% endif %}
+            {% endif %}
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3"> <i class="bi bi-arrow-left"></i> Назад </a>
+                <form method="post" onsubmit="return confirm('Вы уверены, что хотите удалить все данные из таблицы?');">
+                    {% csrf_token %}
+                    <button type="submit" name="clear_table" class="btn btn-danger mt-3"><i class="bi bi-trash"></i> Очистить таблицу</button>
+                </form>
+                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3"> <i class="bi bi-database-add"></i> Перейти в таблицу </a>
             </div>
+
         </div>
+    </div>
 {% endblock %}

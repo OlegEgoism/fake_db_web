@@ -36,7 +36,4 @@ choices_list = {
         'Дата в прошлом', 'Дата в будущем'
     ],
     "jsonb": ["JSON-объект", ]
-
 }
-
-# "character varying":

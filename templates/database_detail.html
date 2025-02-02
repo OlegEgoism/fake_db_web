@@ -22,7 +22,16 @@
             <hr>
             <p><strong>Дата создания:</strong> {{ database.db_date_create|date:"d.m.Y - H:i" }}</p>
             <hr>
-            <a href="{% url 'profile' %}" class="btn btn-secondary mt-3"><i class="bi bi-arrow-left"></i> Назад</a>
+
+            <!-- Кнопки на одном уровне -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <a href="{% url 'profile' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <a href="{% url 'database_edit' database.pk %}" class="btn btn-success">
+                    <i class="bi bi-gear-fill"></i> Настройки
+                </a>
+            </div>
         </div>
     </div>
 

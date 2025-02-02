@@ -1,3 +1,4 @@
+import csv
 import random
 import psycopg2
 from django.conf import settings
@@ -6,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
+from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
 from django.template.loader import render_to_string
@@ -372,6 +374,7 @@ def table_columns(request, pk, schema_name, table_name):
     columns = []
     record_count = 0
     error_message = None
+
     try:
         connection = psycopg2.connect(
             dbname=project.db_name,
@@ -381,13 +384,21 @@ def table_columns(request, pk, schema_name, table_name):
             port=project.db_port
         )
         cursor = connection.cursor()
+
+        # Очистка таблицы при нажатии на кнопку
+        if request.method == 'POST' and 'clear_table' in request.POST:
+            cursor.execute(f'TRUNCATE TABLE "{schema_name}"."{table_name}" RESTART IDENTITY CASCADE;')
+            connection.commit()
+
+        # Получение колонок
         cursor.execute("""
             SELECT 
                 column_name, 
                 data_type, 
                 COALESCE(
-                    (SELECT pg_catalog.col_description(c.oid, cols.ordinal_position::int))
-                    , 'Нет описания') AS column_comment
+                    (SELECT pg_catalog.col_description(c.oid, cols.ordinal_position::int)),
+                    'Нет описания'
+                ) AS column_comment
             FROM information_schema.columns cols
             JOIN pg_catalog.pg_class c 
                 ON c.relname = cols.table_name
@@ -395,12 +406,17 @@ def table_columns(request, pk, schema_name, table_name):
               AND cols.table_name = %s;
         """, (schema_name, table_name))
         columns = cursor.fetchall()
+
+        # Подсчет количества записей в таблице
         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
         record_count = cursor.fetchone()[0]
+
         cursor.close()
         connection.close()
+
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
+
     return render(request, template_name='table_columns.html', context={
         'info': info,
         'project': project,
@@ -616,6 +632,70 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'inserted_rows': inserted_rows,
         'record_count': record_count,
         'error_message': error_message,
+    })
+
+
+# TODO
+def generate_csv(request):
+    """Создание CSV файла"""
+    if request.method == 'POST':
+        selected_fields = request.POST.getlist('fields')
+        num_records = int(request.POST.get('num_records', 10))
+        fake = Faker('ru_RU')
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="fake_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(selected_fields)
+
+        for _ in range(num_records):
+            row = []
+            for field in selected_fields:
+                if field == 'ФИО':
+                    row.append(fake.name())
+                elif field == 'Фамилия':
+                    row.append(fake.last_name())
+                elif field == 'Имя':
+                    row.append(fake.first_name())
+                elif field == 'Отчество':
+                    row.append(fake.middle_name())
+                elif field == 'Логин':
+                    row.append(fake.user_name())
+                elif field == 'Дата рождения':
+                    row.append(fake.date_of_birth(minimum_age=18, maximum_age=90))
+                elif field == 'Возраст':
+                    row.append(fake.random_int(min=18, max=90))
+                elif field == 'Пол':
+                    row.append(fake.random_element(['Мужской', 'Женский']))
+                elif field == 'Страна':
+                    row.append(fake.country())
+                elif field == 'Город':
+                    row.append(fake.city())
+                elif field == 'Адрес':
+                    row.append(fake.street_address())
+                elif field == 'Почтовый индекс':
+                    row.append(fake.postcode())
+                elif field == 'Email':
+                    row.append(fake.email())
+                elif field == 'Телефон':
+                    row.append(fake.phone_number())
+                elif field == 'Компания':
+                    row.append(fake.company())
+                elif field == 'Цена':
+                    row.append(fake.random_number(digits=5))
+                elif field == 'UUID':
+                    row.append(fake.uuid4())
+                elif field == 'True/False':
+                    row.append(fake.boolean())
+                else:
+                    row.append('')
+            writer.writerow(row)
+
+        return response
+
+    return render(request, template_name='generate_csv.html', context={
+        'choices_list': choices_list["text"]
     })
 
 

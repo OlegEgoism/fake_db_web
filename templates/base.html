@@ -81,9 +81,9 @@
 
 <!-- Подвал (footer) -->
 <footer class="bg-dark text-white text-center py-1 mt-auto">
-    <p class="mb-0">&copy; {% now "Y" %} Все права защищены.</p>
     <div class="d-flex justify-content-center align-items-center gap-3">
         {% if info.github %}
+            <div class="mb-0">&copy; {% now "Y" %} Все права защищены.</div>
             <a href="{{ info.github }}" target="_blank" class="text-decoration-none">
                 <i class="bi bi-github" style="font-size:30px; color: #fff;"></i>
             </a>
@@ -94,10 +94,9 @@
             </a>
         {% endif %}
         {% if info.email %}
-            <span class="text-decoration-none">
-                <i class="bi bi-envelope-fill" style="font-size:36px; color: #007bff;"></i>
+            <div class="text-decoration-none">
                 {{ info.email }}
-            </span>
+            </div>
         {% endif %}
     </div>
 </footer>
