@@ -637,9 +637,10 @@ def generate_fake_data(request, pk, schema_name, table_name):
 
 # TODO
 def generate_csv(request):
-    """Создание CSV файла"""
+    """Создание файла CSV"""
+    info = Info.objects.first()
     if request.method == 'POST':
-        selected_fields = request.POST.getlist('fields')
+        column_data = request.POST.getlist('fields')
         num_records = int(request.POST.get('num_records', 10))
         fake = Faker('ru_RU')
 
@@ -647,54 +648,114 @@ def generate_csv(request):
         response['Content-Disposition'] = 'attachment; filename="fake_data.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(selected_fields)
+        writer.writerow(column_data)
 
         for _ in range(num_records):
-            row = []
-            for field in selected_fields:
-                if field == 'ФИО':
-                    row.append(fake.name())
-                elif field == 'Фамилия':
-                    row.append(fake.last_name())
-                elif field == 'Имя':
-                    row.append(fake.first_name())
-                elif field == 'Отчество':
-                    row.append(fake.middle_name())
-                elif field == 'Логин':
-                    row.append(fake.user_name())
-                elif field == 'Дата рождения':
-                    row.append(fake.date_of_birth(minimum_age=18, maximum_age=90))
-                elif field == 'Возраст':
-                    row.append(fake.random_int(min=18, max=90))
-                elif field == 'Пол':
-                    row.append(fake.random_element(['Мужской', 'Женский']))
-                elif field == 'Страна':
-                    row.append(fake.country())
-                elif field == 'Город':
-                    row.append(fake.city())
-                elif field == 'Адрес':
-                    row.append(fake.street_address())
-                elif field == 'Почтовый индекс':
-                    row.append(fake.postcode())
-                elif field == 'Email':
-                    row.append(fake.email())
-                elif field == 'Телефон':
-                    row.append(fake.phone_number())
-                elif field == 'Компания':
-                    row.append(fake.company())
-                elif field == 'Цена':
-                    row.append(fake.random_number(digits=5))
-                elif field == 'UUID':
-                    row.append(fake.uuid4())
-                elif field == 'True/False':
-                    row.append(fake.boolean())
+            values = []
+            for col in column_data:
+                selected_value = col
+
+                if selected_value == 'ФИО':
+                    values.append(fake.name())
+                elif selected_value == 'Фамилия':
+                    values.append(fake.last_name())
+                elif selected_value == 'Имя':
+                    values.append(fake.first_name())
+                elif selected_value == 'Отчество':
+                    values.append(fake.middle_name())
+                elif selected_value == 'Логин':
+                    values.append(fake.user_name())
+                elif selected_value == 'Дата рождения':
+                    values.append(fake.date_of_birth(minimum_age=18, maximum_age=90))
+                elif selected_value == 'Возраст':
+                    values.append(fake.random_int(min=18, max=90))
+                elif selected_value == 'Пол':
+                    values.append(fake.random_element(['Мужской', 'Женский']))
+                elif selected_value == 'Страна':
+                    values.append(fake.country())
+                elif selected_value == 'Город':
+                    values.append(fake.city())
+                elif selected_value == 'Адрес':
+                    values.append(fake.street_address())
+                elif selected_value == 'Почтовый индекс':
+                    values.append(fake.postcode())
+                elif selected_value == 'Email':
+                    values.append(fake.unique.email())
+                elif selected_value == 'Телефон':
+                    values.append(fake.phone_number())
+                elif selected_value == 'Широта':
+                    values.append(fake.latitude())
+                elif selected_value == 'Долгота':
+                    values.append(fake.longitude())
+                elif selected_value == 'Компания':
+                    values.append(fake.company())
+                elif selected_value == 'Категория продукта':
+                    values.append(fake.word(ext_word_list=['Электроника', 'Книги', 'Одежда', 'Игрушки', 'Мебель', 'Транспорт']))
+                elif selected_value == 'Должность':
+                    values.append(fake.job())
+                elif selected_value == 'Отдел':
+                    values.append(fake.bs())
+                elif selected_value == 'Валюта':
+                    values.append(fake.currency_name())
+                elif selected_value == 'Символ валюты':
+                    values.append(fake.currency_symbol())
+                elif selected_value == 'Кредитная карта':
+                    values.append(fake.credit_card_number())
+                elif selected_value == 'IBAN':
+                    values.append(fake.iban())
+                elif selected_value == 'Случайный текст (до 100 букв)':
+                    values.append(fake.text())
+                elif selected_value == 'Заголовок':
+                    values.append(fake.catch_phrase())
+                elif selected_value == 'Рейтинг (1-5)':
+                    values.append(fake.random_int(min=1, max=5))
+                elif selected_value == 'Цена':
+                    values.append(fake.random_number(digits=5))
+                elif selected_value == 'Цвет':
+                    values.append(fake.color_name())
+                elif selected_value == 'Пароль':
+                    values.append(fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True))
+                elif selected_value == 'IP-адрес':
+                    values.append(fake.ipv4())
+                elif selected_value == 'Домен':
+                    values.append(fake.domain_name())
+                elif selected_value == 'URL':
+                    values.append(fake.url())
+                elif selected_value == 'URI':
+                    values.append(fake.uri())
+                elif selected_value == 'UUID':
+                    values.append(fake.uuid4())
+                elif selected_value == 'Число (большое)':
+                    values.append(fake.random_int(min=1, max=9000000))
+                elif selected_value == 'Число (маленькое)':
+                    values.append(fake.random_int(min=1, max=900))
+                elif selected_value == 'True/False':
+                    values.append(fake.boolean())
+                elif selected_value == 'Случайный хэш':
+                    values.append(fake.sha256())
+                elif selected_value == 'JSON-объект':
+                    values.append(fake.json())
+                elif selected_value == 'Дата':
+                    values.append(fake.date())
+                elif selected_value == 'Время':
+                    values.append(fake.time())
+                elif selected_value == 'Дата и время':
+                    values.append(fake.date_time())
+                elif selected_value == 'Временная зона':
+                    values.append(fake.timezone())
+                elif selected_value == 'Дата в прошлом':
+                    values.append(fake.past_date())
+                elif selected_value == 'Дата в будущем':
+                    values.append(fake.future_date())
                 else:
-                    row.append('')
-            writer.writerow(row)
+                    values.append(None)
+
+            writer.writerow(values)
 
         return response
 
     return render(request, template_name='generate_csv.html', context={
+        'info': info,
         'choices_list': choices_list["text"]
     })
 

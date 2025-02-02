@@ -30,3 +30,24 @@ function togglePassword() {
     }
 }
 
+
+$(function () {
+    $("#sortable").sortable();
+    $("#sortable").disableSelection();
+
+    $(".field-checkbox").on("change", function () {
+        const fieldValue = $(this).val();
+        const fieldId = $(this).attr("id");
+
+        if ($(this).is(":checked")) {
+            const listItem = `
+                        <li class="sortable-item" data-value="${fieldValue}">
+                            ${fieldValue}
+                            <input type="hidden" name="fields" value="${fieldValue}">
+                        </li>`;
+            $("#sortable").append(listItem);
+        } else {
+            $(`#sortable li[data-value="${fieldValue}"]`).remove();
+        }
+    });
+});

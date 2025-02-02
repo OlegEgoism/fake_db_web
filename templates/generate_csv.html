@@ -1,45 +1,71 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Генерация CSV{% endblock %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <style>
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sortable-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: move;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <div class="container mt-5">
-        <div class="card shadow-lg border-0">
-            <div class="card-body">
+    <h2 class="text-center mb-4">Генерация случайных данных в файл CSV</h2>
+    <div class="card mx-auto" style="max-width: 1000px;">
+        <div class="card-body">
 
-                <p class="text-center">Генерация случайных данных в CSV файле</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3 d-flex align-items-center">
+                    <strong><label for="num_records" class="form-label me-3 mb-0" style="min-width: 150px;">Количество записей:</label></strong>
+                    <input type="number" class="form-control w-auto" id="num_records" name="num_records" value="1000" min="1" max="1000000" required>
+                    <span class="ms-3">(максимально 1 миллион)</span>
+                </div>
+                <hr>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3 d-flex align-items-center">
-                        <label for="num_records" class="form-label me-3 mb-0">Количество записей:</label>
-                        <input type="number" class="form-control w-auto" id="num_records" name="num_records" value="1000" min="1" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Выберите поля для генерации данных:</label>
-                        <div class="row">
-                            {% for choice in choices_list %}
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="fields" value="{{ choice }}" id="field_{{ forloop.counter }}">
-                                        <label class="form-check-label" for="field_{{ forloop.counter }}">{{ choice }}</label>
-                                    </div>
+                <div class="mb-3">
+                    <strong><label class="form-label">Выберите поля для генерации:</label></strong>
+                    <div class="row">
+                        {% for choice in choices_list %}
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input field-checkbox" type="checkbox" value="{{ choice }}" id="field_{{ forloop.counter }}">
+                                    <label class="form-check-label" for="field_{{ forloop.counter }}">{{ choice }}</label>
                                 </div>
-                            {% endfor %}
-                        </div>
+                            </div>
+                        {% endfor %}
                     </div>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <a href="{% url 'home' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Назад
-                        </a>
-                        <button type="submit" class="btn btn-success ms-auto">
-                            <i class="bi bi-file-earmark-arrow-down"></i> Скачать CSV
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <hr>
+                <strong>Порядок выбранных полей:</strong>
+                <ul id="sortable" class="sortable-list"></ul>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <button type="submit" class="btn btn-success ms-auto">
+                        <i class="bi bi-file-earmark-arrow-down"></i> Скачать CSV
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <script src="{% static 'js/button.js' %}"></script>
 {% endblock %}
