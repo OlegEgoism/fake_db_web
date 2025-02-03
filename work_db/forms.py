@@ -24,8 +24,14 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if CustomUser.objects.filter(email=email).exists():
-            raise ValidationError("Пользователь с таким email уже зарегистрирован.")
+        existing_user = CustomUser.objects.filter(email=email).first()
+        if existing_user:
+            if existing_user.is_active:
+                # Если пользователь активен, регистрация запрещена
+                raise ValidationError("Пользователь с таким email уже зарегистрирован.")
+            else:
+                existing_user.delete()
+
         return email
 
 
