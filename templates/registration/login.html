@@ -42,7 +42,9 @@
                 <a href="{% url 'register' %}" class="btn btn-success bi bi-person-plus "> Зарегистрироваться</a>
                 <a href="{% url 'password_reset' %}" class="btn btn-success"> <i class="bi bi-lock-fill"></i> Сбросить пароль </a>
             </div>
-
+            <div class="text-center mt-3">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger"> <i class="bi bi-google"></i> Войти через Google </a>
+            </div>
         </div>
     </div>
 {% endblock %}

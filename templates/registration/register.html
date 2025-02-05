@@ -61,6 +61,9 @@
                 <div class="mt-3 d-flex justify-content-center gap-3">
                     <button type="submit" class="btn btn-success bi bi-person-plus"> Зарегистрироваться</button>
                 </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger"> <i class="bi bi-google"></i> Войти через Google </a>
+                </div>
             </form>
         </div>
     </div>

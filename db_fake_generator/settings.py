@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'work_db.apps.WorkDbConfig',
 
+    'social_django',
+
 ]
 
 MIDDLEWARE = [
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'db_fake_generator.urls'
@@ -133,10 +136,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'work_db.CustomUser'
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
 # URL перенаправления после входа и выхода
 LOGIN_URL = 'login'  # Перенаправление при попытке доступа без авторизации
+LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
 
 # Отправка уведомлений на электронную почту
 EMAIL_HOST = os.getenv('EMAIL_HOST')
@@ -147,4 +155,11 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 # Ошибки отправки писем на электронную почту
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "logs/email.log")
+
+
+# Google OAuth2
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
