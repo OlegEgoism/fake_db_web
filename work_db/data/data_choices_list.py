@@ -37,3 +37,5 @@ choices_list = {
     ],
     "jsonb": ["JSON-объект", ]
 }
+
+

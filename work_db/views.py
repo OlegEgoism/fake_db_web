@@ -379,6 +379,100 @@ def table_columns(request, pk, schema_name, table_name):
     })
 
 
+def generate_fake_value(column_name, selected_value, fake):
+    """Генерирует случайное значение в зависимости от выбранного типа данных"""
+    if selected_value == 'ФИО':
+        return fake.name()
+    elif selected_value == 'Фамилия':
+        return fake.last_name()
+    elif selected_value == 'Имя':
+        return fake.first_name()
+    elif selected_value == 'Отчество':
+        return fake.middle_name()
+    elif selected_value == 'Логин':
+        return fake.user_name()
+    elif selected_value == 'Дата рождения':
+        return fake.date_of_birth(minimum_age=18, maximum_age=90)
+    elif selected_value == 'Возраст':
+        return fake.random_int(min=18, max=90)
+    elif selected_value == 'Пол':
+        return fake.random_element(['Мужской', 'Женский'])
+    elif selected_value == 'Страна':
+        return fake.country()
+    elif selected_value == 'Город':
+        return fake.city()
+    elif selected_value == 'Адрес':
+        return fake.street_address()
+    elif selected_value == 'Почтовый индекс':
+        return fake.postcode()
+    elif selected_value == 'Email':
+        return fake.unique.email()
+    elif selected_value == 'Телефон':
+        return fake.phone_number()
+    elif selected_value == 'Широта':
+        return fake.latitude()
+    elif selected_value == 'Долгота':
+        return fake.longitude()
+    elif selected_value == 'Компания':
+        return fake.company()
+    elif selected_value == 'Категория продукта':
+        return fake.word(ext_word_list=['Электроника', 'Книги', 'Одежда', 'Игрушки', 'Мебель', 'Транспорт'])
+    elif selected_value == 'Должность':
+        return fake.job()
+    elif selected_value == 'Отдел':
+        return fake.bs()
+    elif selected_value == 'Валюта':
+        return fake.currency_name()
+    elif selected_value == 'Символ валюты':
+        return fake.currency_symbol()
+    elif selected_value == 'Кредитная карта':
+        return fake.credit_card_number()
+    elif selected_value == 'IBAN':
+        return fake.iban()
+    elif selected_value == 'Случайный текст (до 100 букв)':
+        return fake.text()
+    elif selected_value == 'Заголовок':
+        return fake.catch_phrase()
+    elif selected_value == 'Рейтинг (1-5)':
+        return fake.random_int(min=1, max=5)
+    elif selected_value == 'Цена':
+        return fake.random_number(digits=5)
+    elif selected_value == 'Цвет':
+        return fake.color_name()
+    elif selected_value == 'Пароль':
+        return fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True)
+    elif selected_value == 'IP-адрес':
+        return fake.ipv4()
+    elif selected_value == 'Домен':
+        return fake.domain_name()
+    elif selected_value == 'URL':
+        return fake.url()
+    elif selected_value == 'URI':
+        return fake.uri()
+    elif selected_value == 'UUID':
+        return fake.uuid4()
+    elif selected_value == 'Число (большое)':
+        return fake.random_int(min=1, max=9000000)
+    elif selected_value == 'True/False':
+        return fake.boolean()
+    elif selected_value == 'Случайный хэш':
+        return fake.sha256()
+    elif selected_value == 'JSON-объект':
+        return fake.json()
+    elif selected_value == 'Дата':
+        return fake.date()
+    elif selected_value == 'Время':
+        return fake.time()
+    elif selected_value == 'Дата и время':
+        return fake.date_time()
+    elif selected_value == 'Временная зона':
+        return fake.timezone()
+    elif selected_value == 'Дата в прошлом':
+        return fake.past_date()
+    elif selected_value == 'Дата в будущем':
+        return fake.future_date()
+    else:
+        return None  # По умолчанию, если тип данных неизвестен
 
 
 @login_required
@@ -388,15 +482,11 @@ def generate_fake_data(request, pk, schema_name, table_name):
     project = get_object_or_404(DataBaseUser, pk=pk)
     user = project.user
     fake = Faker('ru_RU')
-    error_message = None
-    inserted_rows = 0
-    record_count = 0
-    retry_attempts = 200
+    error_message, inserted_rows, record_count, retry_attempts = None, 0, 0, 200
     data_choices = choices_list
-
     connection, error_message = get_db_connection(project)
+
     try:
-        connection = connection
         cursor = connection.cursor()
         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
         record_count = cursor.fetchone()[0]
@@ -419,19 +509,21 @@ def generate_fake_data(request, pk, schema_name, table_name):
         connection.close()
     except Exception as e:
         error_message = f"Ошибка подключения: {str(e)}"
+
     if request.method == 'POST':
         num_records = int(request.POST.get('num_records', 10))
-        if user.pay_plan != True:
-            if user.limit_request < num_records:
-                error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
-                return render(request, template_name='generate_fake_data.html', context={
-                    'project': project,
-                    'schema_name': schema_name,
-                    'table_name': table_name,
-                    'inserted_rows': inserted_rows,
-                    'record_count': record_count,
-                    'error_message': error_message
-                })
+
+        if not user.pay_plan and user.limit_request < num_records:
+            error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
+            return render(request, template_name='generate_fake_data.html', context={
+                'project': project,
+                'schema_name': schema_name,
+                'table_name': table_name,
+                'inserted_rows': inserted_rows,
+                'record_count': record_count,
+                'error_message': error_message
+            })
+
         try:
             connection = psycopg2.connect(
                 dbname=project.db_name,
@@ -449,130 +541,44 @@ def generate_fake_data(request, pk, schema_name, table_name):
             """, (schema_name, table_name))
             columns = cursor.fetchall()
             column_data = [{'name': col[0], 'type': col[1]} for col in columns]
-            column_names = [f'"{col["name"]}"' for col in column_data]  # Кавычки для SQL
+
+            column_names = [f'"{col["name"]}"' for col in column_data]  # SQL-кавычки
             placeholders = ', '.join(['%s' for _ in column_data])
             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
+
             for _ in range(num_records):
                 attempt = 0
                 while attempt < retry_attempts:
-                    values = []
-                    for col in column_data:
-                        selected_value = request.POST.get(f'column_{col["name"]}', 'Произвольное значение')
-                        if selected_value == 'ФИО':
-                            values.append(fake.name())
-                        elif selected_value == 'Фамилия':
-                            values.append(fake.last_name())
-                        elif selected_value == 'Имя':
-                            values.append(fake.first_name())
-                        elif selected_value == 'Отчество':
-                            values.append(fake.middle_name())
-                        elif selected_value == 'Логин':
-                            values.append(fake.user_name())
-                        elif selected_value == 'Дата рождения':
-                            values.append(fake.date_of_birth(minimum_age=18, maximum_age=90))
-                        elif selected_value == 'Возраст':
-                            values.append(fake.random_int(min=18, max=90))
-                        elif selected_value == 'Пол':
-                            values.append(fake.random_element(['Мужской', 'Женский']))
-                        elif selected_value == 'Страна':
-                            values.append(fake.country())
-                        elif selected_value == 'Город':
-                            values.append(fake.city())
-                        elif selected_value == 'Адрес':
-                            values.append(fake.street_address())
-                        elif selected_value == 'Почтовый индекс':
-                            values.append(fake.postcode())
-                        elif selected_value == 'Email':
-                            values.append(fake.unique.email())
-                        elif selected_value == 'Телефон':
-                            values.append(fake.phone_number())
-                        elif selected_value == 'Широта':
-                            values.append(fake.latitude())
-                        elif selected_value == 'Долгота':
-                            values.append(fake.longitude())
-                        elif selected_value == 'Компания':
-                            values.append(fake.company())
-                        elif selected_value == 'Категория продукта':
-                            values.append(fake.word(ext_word_list=['Электроника', 'Книги', 'Одежда', 'Игрушки', 'Мебель', 'Транспорт']))
-                        elif selected_value == 'Должность':
-                            values.append(fake.job())
-                        elif selected_value == 'Отдел':
-                            values.append(fake.bs())
-                        elif selected_value == 'Валюта':
-                            values.append(fake.currency_name())
-                        elif selected_value == 'Символ валюты':
-                            values.append(fake.currency_symbol())
-                        elif selected_value == 'Кредитная карта':
-                            values.append(fake.credit_card_number())
-                        elif selected_value == 'IBAN':
-                            values.append(fake.iban())
-                        elif selected_value == 'Случайный текст (до 100 букв)':
-                            values.append(fake.text())
-                        elif selected_value == 'Заголовок':
-                            values.append(fake.catch_phrase())
-                        elif selected_value == 'Рейтинг (1-5)':
-                            values.append(fake.random_int(min=1, max=5))
-                        elif selected_value == 'Цена':
-                            values.append(fake.random_number(digits=5))
-                        elif selected_value == 'Цвет':
-                            values.append(fake.color_name())
-                        elif selected_value == 'Пароль':
-                            values.append(fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True))
-                        elif selected_value == 'IP-адрес':
-                            values.append(fake.ipv4())
-                        elif selected_value == 'Домен':
-                            values.append(fake.domain_name())
-                        elif selected_value == 'URL':
-                            values.append(fake.url())
-                        elif selected_value == 'URI':
-                            values.append(fake.uri())
-                        elif selected_value == 'UUID':
-                            values.append(fake.uuid4())
-                        elif selected_value == 'Число (большое)':
-                            values.append(fake.random_int(min=1, max=9000000))
-                        elif selected_value == 'Число (большое)':
-                            values.append(fake.random_int(min=1, max=900))
-                        elif selected_value == 'True/False':
-                            values.append(fake.boolean())
-                        elif selected_value == 'Случайный хэш':
-                            values.append(fake.sha256())
-                        elif selected_value == 'JSON-объект':
-                            values.append(fake.json())
-                        elif selected_value == 'Дата':
-                            values.append(fake.date())
-                        elif selected_value == 'Время':
-                            values.append(fake.time())
-                        elif selected_value == 'Дата и время':
-                            values.append(fake.date_time())
-                        elif selected_value == 'Временная зона':
-                            values.append(fake.timezone())
-                        elif selected_value == 'Дата в прошлом':
-                            values.append(fake.past_date())
-                        elif selected_value == 'Дата в будущем':
-                            values.append(fake.future_date())
-                        else:
-                            values.append(None)
+                    values = [
+                        generate_fake_value(col["name"], request.POST.get(f'column_{col["name"]}', 'Произвольное значение'), fake)
+                        for col in column_data
+                    ]
+
                     try:
                         cursor.execute(insert_query, values)
                         inserted_rows += 1
-                        break  # Успешная вставка, выходим из цикла
+                        break  # Успешная вставка, выход из цикла
                     except psycopg2.IntegrityError:
-                        connection.rollback()  # Откат транзакции в случае ошибки
+                        connection.rollback()
                         attempt += 1
                         if attempt == retry_attempts:
                             raise
+
             connection.commit()
             cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
             record_count = cursor.fetchone()[0]
             cursor.close()
             connection.close()
-            if user.pay_plan != True:
+
+            if not user.pay_plan:
                 user.limit_request = max(0, user.limit_request - num_records)
                 user.save()
+
         except psycopg2.IntegrityError as e:
             error_message = f"Ошибка вставки данных (дубликат): {str(e)}"
         except Exception as e:
             error_message = f"Ошибка вставки данных: {str(e)}"
+
     return render(request, template_name='generate_fake_data.html', context={
         'info': info,
         'project': project,
@@ -583,6 +589,206 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'record_count': record_count,
         'error_message': error_message,
     })
+
+
+# @login_required
+# def generate_fake_data(request, pk, schema_name, table_name):
+#     """Генерация случайных данных для указанной таблицы"""
+#     info = Info.objects.first()
+#     project = get_object_or_404(DataBaseUser, pk=pk)
+#     user = project.user
+#     fake = Faker('ru_RU')
+#     error_message, inserted_rows, record_count, retry_attempts = None, 0, 0 ,200
+#     data_choices = choices_list
+#     connection, error_message = get_db_connection(project)
+#     try:
+#         connection = connection
+#         cursor = connection.cursor()
+#         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
+#         record_count = cursor.fetchone()[0]
+#         cursor.execute("""
+#             SELECT column_name, data_type
+#             FROM information_schema.columns
+#             WHERE table_schema = %s
+#               AND table_name = %s;
+#         """, (schema_name, table_name))
+#         columns = cursor.fetchall()
+#         column_data = [
+#             {
+#                 'name': col[0],
+#                 'type': col[1],
+#                 'choices': data_choices.get(col[1], ['Произвольное значение'])
+#             }
+#             for col in columns
+#         ]
+#         cursor.close()
+#         connection.close()
+#     except Exception as e:
+#         error_message = f"Ошибка подключения: {str(e)}"
+#     if request.method == 'POST':
+#         num_records = int(request.POST.get('num_records', 10))
+#         if user.pay_plan != True:
+#             if user.limit_request < num_records:
+#                 error_message = f"Превышен лимит запросов. Доступно: {user.limit_request}"
+#                 return render(request, template_name='generate_fake_data.html', context={
+#                     'project': project,
+#                     'schema_name': schema_name,
+#                     'table_name': table_name,
+#                     'inserted_rows': inserted_rows,
+#                     'record_count': record_count,
+#                     'error_message': error_message
+#                 })
+#         try:
+#             connection = psycopg2.connect(
+#                 dbname=project.db_name,
+#                 user=project.db_user,
+#                 password=project.db_password,
+#                 host=project.db_host,
+#                 port=project.db_port
+#             )
+#             cursor = connection.cursor()
+#             cursor.execute("""
+#                 SELECT column_name, data_type
+#                 FROM information_schema.columns
+#                 WHERE table_schema = %s
+#                   AND table_name = %s;
+#             """, (schema_name, table_name))
+#             columns = cursor.fetchall()
+#             column_data = [{'name': col[0], 'type': col[1]} for col in columns]
+#             column_names = [f'"{col["name"]}"' for col in column_data]  # Кавычки для SQL
+#             placeholders = ', '.join(['%s' for _ in column_data])
+#             insert_query = f'INSERT INTO "{schema_name}"."{table_name}" ({", ".join(column_names)}) VALUES ({placeholders})'
+#             for _ in range(num_records):
+#                 attempt = 0
+#                 while attempt < retry_attempts:
+#                     values = []
+#                     for col in column_data:
+#                         selected_value = request.POST.get(f'column_{col["name"]}', 'Произвольное значение')
+#                         if selected_value == 'ФИО':
+#                             values.append(fake.name())
+#                         elif selected_value == 'Фамилия':
+#                             values.append(fake.last_name())
+#                         elif selected_value == 'Имя':
+#                             values.append(fake.first_name())
+#                         elif selected_value == 'Отчество':
+#                             values.append(fake.middle_name())
+#                         elif selected_value == 'Логин':
+#                             values.append(fake.user_name())
+#                         elif selected_value == 'Дата рождения':
+#                             values.append(fake.date_of_birth(minimum_age=18, maximum_age=90))
+#                         elif selected_value == 'Возраст':
+#                             values.append(fake.random_int(min=18, max=90))
+#                         elif selected_value == 'Пол':
+#                             values.append(fake.random_element(['Мужской', 'Женский']))
+#                         elif selected_value == 'Страна':
+#                             values.append(fake.country())
+#                         elif selected_value == 'Город':
+#                             values.append(fake.city())
+#                         elif selected_value == 'Адрес':
+#                             values.append(fake.street_address())
+#                         elif selected_value == 'Почтовый индекс':
+#                             values.append(fake.postcode())
+#                         elif selected_value == 'Email':
+#                             values.append(fake.unique.email())
+#                         elif selected_value == 'Телефон':
+#                             values.append(fake.phone_number())
+#                         elif selected_value == 'Широта':
+#                             values.append(fake.latitude())
+#                         elif selected_value == 'Долгота':
+#                             values.append(fake.longitude())
+#                         elif selected_value == 'Компания':
+#                             values.append(fake.company())
+#                         elif selected_value == 'Категория продукта':
+#                             values.append(fake.word(ext_word_list=['Электроника', 'Книги', 'Одежда', 'Игрушки', 'Мебель', 'Транспорт']))
+#                         elif selected_value == 'Должность':
+#                             values.append(fake.job())
+#                         elif selected_value == 'Отдел':
+#                             values.append(fake.bs())
+#                         elif selected_value == 'Валюта':
+#                             values.append(fake.currency_name())
+#                         elif selected_value == 'Символ валюты':
+#                             values.append(fake.currency_symbol())
+#                         elif selected_value == 'Кредитная карта':
+#                             values.append(fake.credit_card_number())
+#                         elif selected_value == 'IBAN':
+#                             values.append(fake.iban())
+#                         elif selected_value == 'Случайный текст (до 100 букв)':
+#                             values.append(fake.text())
+#                         elif selected_value == 'Заголовок':
+#                             values.append(fake.catch_phrase())
+#                         elif selected_value == 'Рейтинг (1-5)':
+#                             values.append(fake.random_int(min=1, max=5))
+#                         elif selected_value == 'Цена':
+#                             values.append(fake.random_number(digits=5))
+#                         elif selected_value == 'Цвет':
+#                             values.append(fake.color_name())
+#                         elif selected_value == 'Пароль':
+#                             values.append(fake.password(length=12, special_chars=True, digits=True, upper_case=True, lower_case=True))
+#                         elif selected_value == 'IP-адрес':
+#                             values.append(fake.ipv4())
+#                         elif selected_value == 'Домен':
+#                             values.append(fake.domain_name())
+#                         elif selected_value == 'URL':
+#                             values.append(fake.url())
+#                         elif selected_value == 'URI':
+#                             values.append(fake.uri())
+#                         elif selected_value == 'UUID':
+#                             values.append(fake.uuid4())
+#                         elif selected_value == 'Число (большое)':
+#                             values.append(fake.random_int(min=1, max=9000000))
+#                         elif selected_value == 'Число (большое)':
+#                             values.append(fake.random_int(min=1, max=900))
+#                         elif selected_value == 'True/False':
+#                             values.append(fake.boolean())
+#                         elif selected_value == 'Случайный хэш':
+#                             values.append(fake.sha256())
+#                         elif selected_value == 'JSON-объект':
+#                             values.append(fake.json())
+#                         elif selected_value == 'Дата':
+#                             values.append(fake.date())
+#                         elif selected_value == 'Время':
+#                             values.append(fake.time())
+#                         elif selected_value == 'Дата и время':
+#                             values.append(fake.date_time())
+#                         elif selected_value == 'Временная зона':
+#                             values.append(fake.timezone())
+#                         elif selected_value == 'Дата в прошлом':
+#                             values.append(fake.past_date())
+#                         elif selected_value == 'Дата в будущем':
+#                             values.append(fake.future_date())
+#                         else:
+#                             values.append(None)
+#                     try:
+#                         cursor.execute(insert_query, values)
+#                         inserted_rows += 1
+#                         break  # Успешная вставка, выходим из цикла
+#                     except psycopg2.IntegrityError:
+#                         connection.rollback()  # Откат транзакции в случае ошибки
+#                         attempt += 1
+#                         if attempt == retry_attempts:
+#                             raise
+#             connection.commit()
+#             cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
+#             record_count = cursor.fetchone()[0]
+#             cursor.close()
+#             connection.close()
+#             if user.pay_plan != True:
+#                 user.limit_request = max(0, user.limit_request - num_records)
+#                 user.save()
+#         except psycopg2.IntegrityError as e:
+#             error_message = f"Ошибка вставки данных (дубликат): {str(e)}"
+#         except Exception as e:
+#             error_message = f"Ошибка вставки данных: {str(e)}"
+#     return render(request, template_name='generate_fake_data.html', context={
+#         'info': info,
+#         'project': project,
+#         'schema_name': schema_name,
+#         'table_name': table_name,
+#         'column_data': column_data,
+#         'inserted_rows': inserted_rows,
+#         'record_count': record_count,
+#         'error_message': error_message,
+#     })
 
 
 

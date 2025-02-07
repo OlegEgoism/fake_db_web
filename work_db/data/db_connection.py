@@ -2,7 +2,6 @@ from work_db.models import AppSettings
 import psycopg2
 
 
-
 def get_db_connection(project):
     """Возвращает соединение с базой данных или ошибку."""
     try:
@@ -17,5 +16,4 @@ def get_db_connection(project):
         return connection, None
     except Exception as e:
         return None, f"Ошибка подключения: {str(e)}"
-
 
