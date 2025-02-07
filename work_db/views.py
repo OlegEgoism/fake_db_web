@@ -8,15 +8,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from faker import Faker
 from .data.data_choices_list import choices_list
+from .data.db_connection import get_db_connection
 from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
-from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth import logout
 from .models import Info, DataBaseUser, AppSettings, DeletionConfirmation
@@ -136,10 +136,10 @@ def request_account_deletion(request):
     deletion_code.code = code
     deletion_code.save()
     send_mail(
-        "Подтверждение удаления аккаунта",
-        f"Ваш код для удаления аккаунта: {code}",
-        settings.EMAIL_HOST_USER,
-        [user.email],
+        subject="Подтверждение удаления аккаунта",
+        message=f"Ваш код для удаления аккаунта: {code}",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
         fail_silently=False,
     )
     messages.success(request, "Код подтверждения отправлен на вашу почту.")
@@ -172,6 +172,7 @@ def logout_view(request):
     return redirect('home')
 
 
+# TODO
 @login_required
 def database_detail(request, pk):
     """Страница информации о конкретной базе данных пользователя"""
@@ -271,26 +272,15 @@ def my_projects(request):
     })
 
 
+@login_required
 def connect_to_database(request, pk):
-    """Получаем объект базы данных"""
+    """Проверяет подключение к базе данных."""
     info = Info.objects.first()
-    connect_timeout = AppSettings.objects.first().connect_timeout_db
     project = get_object_or_404(DataBaseUser, pk=pk)
-    connection_status = None
-    error_message = None
-    try:
-        connection = psycopg2.connect(
-            dbname=project.db_name,
-            user=project.db_user,
-            password=project.db_password,
-            host=project.db_host,
-            port=project.db_port,
-            connect_timeout=connect_timeout
-        )
-        connection_status = f"Успешное подключение к базе данных '{project.db_name}'"
+    connection, error_message = get_db_connection(project)
+    connection_status = f"Успешное подключение к базе '{project.db_name}'" if connection else None
+    if connection:
         connection.close()
-    except Exception as e:
-        error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='connect_result.html', context={
         'info': info,
         'project': project,
@@ -299,32 +289,23 @@ def connect_to_database(request, pk):
     })
 
 
+@login_required
 def database_schemas(request, pk):
-    """Получаем список схем в базе данных"""
+    """Получает список схем в базе данных."""
     info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
-    schemas = []
-    error_message = None
-    try:
-        connection = psycopg2.connect(
-            dbname=project.db_name,
-            user=project.db_user,
-            password=project.db_password,
-            host=project.db_host,
-            port=project.db_port
-        )
-        cursor = connection.cursor()
-        cursor.execute("""
-            SELECT schema_name 
-            FROM information_schema.schemata 
-            WHERE schema_name NOT IN ('pg_toast', 'pg_catalog', 'information_schema')
-            ORDER BY schema_name;
-        """)
-        schemas = [row[0] for row in cursor.fetchall()]
-        cursor.close()
+    schemas, error_message = [], None
+    connection, error_message = get_db_connection(project)
+    if connection:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT schema_name 
+                FROM information_schema.schemata 
+                WHERE schema_name NOT IN ('pg_toast', 'pg_catalog', 'information_schema')
+                ORDER BY schema_name;
+            """)
+            schemas = [row[0] for row in cursor.fetchall()]
         connection.close()
-    except Exception as e:
-        error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='database_schemas.html', context={
         'info': info,
         'project': project,
@@ -333,31 +314,22 @@ def database_schemas(request, pk):
     })
 
 
+@login_required
 def schema_tables(request, pk, schema_name):
-    """Получения информации о схеме"""
+    """Получает список таблиц в схеме."""
     info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
-    tables = []
-    error_message = None
-    try:
-        connection = psycopg2.connect(
-            dbname=project.db_name,
-            user=project.db_user,
-            password=project.db_password,
-            host=project.db_host,
-            port=project.db_port
-        )
-        cursor = connection.cursor()
-        cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = %s;
-        """, (schema_name,))
-        tables = [row[0] for row in cursor.fetchall()]
-        cursor.close()
+    tables, error_message = [], None
+    connection, error_message = get_db_connection(project)
+    if connection:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = %s;
+            """, (schema_name,))
+            tables = [row[0] for row in cursor.fetchall()]
         connection.close()
-    except Exception as e:
-        error_message = f"Ошибка подключения: {str(e)}"
     return render(request, template_name='schema_tables.html', context={
         'info': info,
         'project': project,
@@ -367,57 +339,36 @@ def schema_tables(request, pk, schema_name):
     })
 
 
+@login_required
 def table_columns(request, pk, schema_name, table_name):
-    """Получение информации о таблице и количестве записей"""
+    """Получает информацию о колонках таблицы и количестве записей."""
     info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
-    columns = []
-    record_count = 0
-    error_message = None
-
-    try:
-        connection = psycopg2.connect(
-            dbname=project.db_name,
-            user=project.db_user,
-            password=project.db_password,
-            host=project.db_host,
-            port=project.db_port
-        )
-        cursor = connection.cursor()
-
-        # Очистка таблицы при нажатии на кнопку
-        if request.method == 'POST' and 'clear_table' in request.POST:
-            cursor.execute(f'TRUNCATE TABLE "{schema_name}"."{table_name}" RESTART IDENTITY CASCADE;')
-            connection.commit()
-
-        # Получение колонок
-        cursor.execute("""
-            SELECT 
-                column_name, 
-                data_type, 
-                COALESCE(
-                    (SELECT pg_catalog.col_description(c.oid, cols.ordinal_position::int)),
-                    'Нет описания'
-                ) AS column_comment
-            FROM information_schema.columns cols
-            JOIN pg_catalog.pg_class c 
-                ON c.relname = cols.table_name
-            WHERE cols.table_schema = %s 
-              AND cols.table_name = %s;
-        """, (schema_name, table_name))
-        columns = cursor.fetchall()
-
-        # Подсчет количества записей в таблице
-        cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
-        record_count = cursor.fetchone()[0]
-
-        cursor.close()
+    columns, record_count, error_message = [], 0, None
+    connection, error_message = get_db_connection(project)
+    if connection:
+        with connection.cursor() as cursor:
+            if request.method == 'POST' and 'clear_table' in request.POST:
+                cursor.execute(f'TRUNCATE TABLE "{schema_name}"."{table_name}" RESTART IDENTITY CASCADE;')
+                connection.commit()
+            cursor.execute("""
+                SELECT 
+                    column_name, 
+                    data_type, 
+                    COALESCE(
+                        (SELECT pg_catalog.col_description(c.oid, cols.ordinal_position::int)), 
+                        'Нет описания'
+                    ) AS column_comment
+                FROM information_schema.columns cols
+                JOIN pg_catalog.pg_class c ON c.relname = cols.table_name
+                WHERE cols.table_schema = %s 
+                  AND cols.table_name = %s;
+            """, (schema_name, table_name))
+            columns = cursor.fetchall()
+            cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
+            record_count = cursor.fetchone()[0]
         connection.close()
-
-    except Exception as e:
-        error_message = f"Ошибка подключения: {str(e)}"
-
-    return render(request, template_name='table_columns.html', context={
+    return render(request, template_name='table_columns.html', context= {
         'info': info,
         'project': project,
         'schema_name': schema_name,
@@ -428,6 +379,9 @@ def table_columns(request, pk, schema_name, table_name):
     })
 
 
+
+
+@login_required
 def generate_fake_data(request, pk, schema_name, table_name):
     """Генерация случайных данных для указанной таблицы"""
     info = Info.objects.first()
@@ -439,14 +393,10 @@ def generate_fake_data(request, pk, schema_name, table_name):
     record_count = 0
     retry_attempts = 200
     data_choices = choices_list
+
+    connection, error_message = get_db_connection(project)
     try:
-        connection = psycopg2.connect(
-            dbname=project.db_name,
-            user=project.db_user,
-            password=project.db_password,
-            host=project.db_host,
-            port=project.db_port
-        )
+        connection = connection
         cursor = connection.cursor()
         cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
         record_count = cursor.fetchone()[0]
@@ -633,6 +583,22 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'record_count': record_count,
         'error_message': error_message,
     })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # TODO
