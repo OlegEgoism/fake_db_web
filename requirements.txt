@@ -8,11 +8,13 @@ Django==5.1.5
 Faker==35.0.0
 idna==3.10
 oauthlib==3.2.2
+packaging==24.2
 pillow==11.1.0
 psycopg2-binary==2.9.10
 pycparser==2.22
 pyjokes==0.8.3
 PyJWT==2.10.1
+pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
 python3-openid==3.2.0
