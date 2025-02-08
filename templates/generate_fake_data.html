@@ -13,7 +13,6 @@
             <h5><strong>Количество записей в таблице:</strong> {{ record_count }} шт.</h5>
             <hr>
 
-            <h5 class="text-top">Доступные настройки для генерирования данных:</h5>
             {% if error_message %}
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
@@ -60,15 +59,11 @@
                 </table>
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Назад
-                    </a>
-                    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success">
-                        <i class="bi bi-arrow-repeat"></i> Обновить данные
-                    </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-arrow-up-right-circle"></i> Сгенерировать данные
-                    </button>
+                    <a href="{% url 'table_columns' project.pk schema_name table_name %}" class="btn btn-secondary"> <i class="bi bi-arrow-left"></i> Назад </a>
+                    <a href="{% url 'view_table_data' project.pk schema_name table_name %}" class="btn btn-info"> <i class="bi bi-table"></i> Просмотреть данные </a>
+                    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success"> <i class="bi bi-arrow-repeat"></i> Обновить данные </a>
+
+                    <button type="submit" class="btn btn-success"><i class="bi bi-arrow-up-right-circle"></i> Сгенерировать данные</button>
                 </div>
             </form>
         </div>

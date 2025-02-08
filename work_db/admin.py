@@ -33,7 +33,8 @@ class DeletionConfirmationAdmin(admin.ModelAdmin):
 @admin.register(AppSettings)
 class AppSettingsAdmin(admin.ModelAdmin):
     """Информация на сайте"""
-    list_display = '__str__', 'limit_create_db', 'connect_timeout_db',
+    list_display = '__str__', 'limit_create_db', 'connect_timeout_db', 'view_table_db',
+    list_editable = 'limit_create_db', 'connect_timeout_db', 'view_table_db',
 
     def has_add_permission(self, request):
         """Запрещает создание новой записи, если уже существует одна запись"""
@@ -68,7 +69,7 @@ class CustomUserAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions',)}),
     )
-    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'db_count',  'pay_plan', 'last_login', 'is_active',
+    list_display = 'username', 'preview_photo', 'email', 'phone_number', 'limit_request', 'db_count', 'pay_plan', 'last_login', 'is_active',
     list_filter = 'pay_plan', 'is_staff', 'is_active', 'date_joined',
     list_editable = 'pay_plan', 'is_active',
     search_fields = 'username', 'email', 'phone_number',

@@ -6,6 +6,7 @@ class AppSettings(models.Model):
     """Настройки проекта"""
     limit_create_db = models.IntegerField(verbose_name="Лимит создания проектов", default=3)
     connect_timeout_db = models.IntegerField(verbose_name="Время проверки соединения в БД", default=5)
+    view_table_db = models.IntegerField(verbose_name="Количество отображаемых данных в таблице", default=50)
 
     def __str__(self):
         return f'Настройки проекта'

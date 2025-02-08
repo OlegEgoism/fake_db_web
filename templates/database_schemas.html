@@ -6,7 +6,7 @@
     <h2 class="text-center mb-4">Схемы базы данной</h2>
     <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
         <div class="card-body text-top">
-                        <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
+            <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
             <h5><strong>База данных:</strong> {{ project.db_name }}</h5>
             <hr>
 
@@ -29,6 +29,7 @@
             {% endif %}
             <div class="d-flex justify-content-start mt-3">
                 <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-secondary mt-3"> <i class="bi bi-arrow-left"></i> Назад</a>
+
             </div>
         </div>
     </div>
