@@ -24,8 +24,13 @@ from work_db.views import (
     schema_tables,
     table_columns,
     generate_fake_data,
+    view_table_data,
 
-    random_joke, generate_csv, view_table_data,
+    random_joke,
+
+    generate_csv,
+
+    recognize_text, download_text,
 )
 
 urlpatterns = [
@@ -61,14 +66,12 @@ urlpatterns = [
     path('schemas/<int:pk>/<str:schema_name>/', schema_tables, name='schema_tables'),
     path('schemas/<int:pk>/<str:schema_name>/<str:table_name>/', table_columns, name='table_columns'),
     path('schemas/<int:pk>/<str:schema_name>/<str:table_name>/generate/', generate_fake_data, name='generate_fake_data'),
-
     path('view_table_data/<int:pk>/<str:schema_name>/<str:table_name>/', view_table_data, name='view_table_data'),
-
-
 
     path('random_joke/', random_joke, name='random_joke'),
 
     path('generate_csv/', generate_csv, name='generate_csv'),
 
-
+    path('recognize/', recognize_text, name='recognize_text'),
+    path('download_text/', download_text, name='download_text'),
 ]

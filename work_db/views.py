@@ -1,6 +1,7 @@
 import csv
 import random
 import psycopg2
+from PIL import Image
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -17,7 +18,7 @@ from django.utils.encoding import force_bytes, force_str
 from faker import Faker
 from .data.data_choices_list import choices_list, generate_fake_value
 from .data.db_connection import get_db_connection
-from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm
+from .forms import CustomUserCreationForm, DataBaseUserForm, CustomUserForm, ImageUploadForm
 from django.contrib import messages
 from django.contrib.auth import logout
 from .models import Info, DataBaseUser, AppSettings, DeletionConfirmation
@@ -25,6 +26,10 @@ from django.contrib.auth import get_user_model
 import pyjokes
 
 User = get_user_model()
+
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
 
 
 def home(request):
@@ -496,6 +501,46 @@ def generate_fake_data(request, pk, schema_name, table_name):
     })
 
 
+@login_required
+def view_table_data(request, pk, schema_name, table_name):
+    """Просмотр данных из таблицы с пагинацией"""
+    project = get_object_or_404(DataBaseUser, pk=pk)
+    connection, error_message = get_db_connection(project)
+    view_table_db = AppSettings.objects.first()
+    if error_message:
+        return render(request, template_name='error_page.html', context={'error_message': error_message})
+    cursor = connection.cursor()
+    cursor.execute(f"""
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = %s AND table_name = %s;
+    """, (schema_name, table_name))
+    columns = [col[0] for col in cursor.fetchall()]
+    cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
+    record_count = cursor.fetchone()[0]
+    cursor.execute(f'SELECT * FROM "{schema_name}"."{table_name}";')
+    rows = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    page_size = view_table_db.view_table_db if view_table_db else 50
+    paginator = Paginator(rows, page_size)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Количество записей на текущей странице
+    records_on_page = len(page_obj.object_list)
+
+    return render(request, template_name='view_table_data.html', context={
+        'project': project,
+        'schema_name': schema_name,
+        'table_name': table_name,
+        'columns': columns,
+        'page_obj': page_obj,
+        'record_count': record_count,
+        'records_on_page': records_on_page
+    })
+
+
+# TODO
 def generate_csv(request):
     """Создание файла CSV"""
     info = Info.objects.first()
@@ -535,41 +580,28 @@ def random_joke(request):
     })
 
 
-@login_required
-def view_table_data(request, pk, schema_name, table_name):
-    """Просмотр данных из таблицы с пагинацией"""
-    project = get_object_or_404(DataBaseUser, pk=pk)
-    connection, error_message = get_db_connection(project)
-    view_table_db = AppSettings.objects.first()
-    if error_message:
-        return render(request, template_name='error_page.html', context={'error_message': error_message})
-    cursor = connection.cursor()
-    cursor.execute(f"""
-        SELECT column_name FROM information_schema.columns
-        WHERE table_schema = %s AND table_name = %s;
-    """, (schema_name, table_name))
-    columns = [col[0] for col in cursor.fetchall()]
-    cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
-    record_count = cursor.fetchone()[0]
-    cursor.execute(f'SELECT * FROM "{schema_name}"."{table_name}";')
-    rows = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    page_size = view_table_db.view_table_db if view_table_db else 50
-    paginator = Paginator(rows, page_size)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    # Количество записей на текущей странице
-    records_on_page = len(page_obj.object_list)
-
-    return render(request, template_name='view_table_data.html', context={
-        'project': project,
-        'schema_name': schema_name,
-        'table_name': table_name,
-        'columns': columns,
-        'page_obj': page_obj,
-        'record_count': record_count,
-        'records_on_page': records_on_page
+# TODO
+def recognize_text(request):
+    """Распознавание текста"""
+    recognized_text = None
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_image = form.save()
+            image_path = uploaded_image.image.path
+            img = Image.open(image_path)
+            recognized_text = pytesseract.image_to_string(img, lang='rus+eng')
+            request.session['recognized_text'] = recognized_text  # Сохраняем текст в сессии
+    else:
+        form = ImageUploadForm()
+    return render(request, template_name='recognize_text.html', context={
+        'form': form,
+        'recognized_text': recognized_text
     })
 
+def download_text(request):
+    """Скачивание распознанного текста"""
+    recognized_text = request.session.get('recognized_text', '')  # Получаем текст из сессии
+    response = HttpResponse(recognized_text, content_type="text/plain; charset=utf-8")
+    response['Content-Disposition'] = 'attachment; filename="recognized_text.txt"'
+    return response

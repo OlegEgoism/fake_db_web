@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
-from .models import CustomUser, DataBaseUser
-
+from .models import CustomUser, DataBaseUser, UploadedImage
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -66,4 +65,9 @@ class DataBaseUserForm(forms.ModelForm):
         }
 
 
+class ImageUploadForm(forms.ModelForm):
+    """Распознаванию текста"""
 
+    class Meta:
+        model = UploadedImage
+        fields = 'image',

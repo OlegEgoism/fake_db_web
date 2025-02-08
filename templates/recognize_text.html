@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Распознавание текста{% endblock %}
+
+{% block content %}
+    <h2 class="text-center mb-4">Распознавание текста</h2>
+    <div class="card shadow-lg border-0 mx-auto" style="max-width: 600px;">
+        <div class="card-body text-center">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="image" class="form-label">Загрузите изображение:</label>
+                    {{ form.image }}
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-file-text-fill"></i> Распознать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if recognized_text %}
+        <div class="card shadow-lg border-0 mx-auto mt-4" style="max-width: 800px;">
+            <div class="card-body">
+                <h5>Распознанный текст:</h5>
+                <hr>
+                <pre style="white-space: pre-wrap;">{{ recognized_text }}</pre>
+                <a href="{% url 'download_text' %}" class="btn btn-success mt-3">
+                    <i class="bi bi-download"></i> Скачать текст
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

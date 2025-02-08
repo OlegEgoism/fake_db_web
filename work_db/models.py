@@ -111,3 +111,12 @@ class DataBaseUser(models.Model):
         verbose_name = "Проект пользователя"
         verbose_name_plural = "Проекты пользователей"
         ordering = 'db_date_create',
+
+
+class UploadedImage(models.Model):
+    """Распознаванию текста"""
+    image = models.ImageField(verbose_name="Ссылка на файл", upload_to='uploads/')
+    uploaded_at = models.DateTimeField(verbose_name="Дата загрузки файла", auto_now_add=True)
+
+    def __str__(self):
+        return f"Изображение {self.id} - {self.uploaded_at}"
