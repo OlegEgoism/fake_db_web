@@ -36,7 +36,13 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=..........................
 'Oracle' 
 'PostgreSQL' 
 
-https://youtu.be/TvEliq0C4ZA
+## 🎥 Видео-обзор проекта
+Посмотрите демонстрацию работы проекта на YouTube:
+
+[![Fake Tools Suite - обзор](https://img.youtube.com/vi/TvEliq0C4ZA/0.jpg)](https://youtu.be/TvEliq0C4ZA)
+
+Нажмите на изображение или [перейдите по ссылке](https://youtu.be/TvEliq0C4ZA), чтобы посмотреть видео.
+
 
 ```bash
 git clone https://github.com/your-username/fake-tools-suite.git
