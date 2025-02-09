@@ -1,6 +1,16 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from work_db.models import CustomUser, DataBaseName, DataBaseUser, Info, AppSettings, DeletionConfirmation
+from social_django.models import Association, Nonce, UserSocialAuth
+
+Association._meta.verbose_name = "Связь"
+Association._meta.verbose_name_plural = "Связи"
+
+Nonce._meta.verbose_name = "Одноразовый код"
+Nonce._meta.verbose_name_plural = "Одноразовые коды"
+
+UserSocialAuth._meta.verbose_name = "Социальная сеть"
+UserSocialAuth._meta.verbose_name_plural = "Социальные сети"
 
 admin.site.site_header = "FAKE DATA"
 admin.site.site_title = "Админ-панель FAKE DATA"

@@ -114,8 +114,8 @@ class DataBaseUser(models.Model):
 
 
 class UploadedImage(models.Model):
-    """Распознаванию текста"""
-    image = models.ImageField(verbose_name="Ссылка на файл", upload_to='uploads/')
+    """Файлы для распознавания текста"""
+    image = models.ImageField(verbose_name="Ссылка на файл", upload_to='files/')
     uploaded_at = models.DateTimeField(verbose_name="Дата загрузки файла", auto_now_add=True)
 
     def __str__(self):
