@@ -3,7 +3,7 @@
 {% block title %}Таблицы схемы {{ schema_name }}{% endblock %}
 
 {% block content %}
-    <h2 class="text-center mb-4">Таблицы в схеме</h2>
+    <h2 class="text-center mb-4">Таблицы в схеме {{ schema_name }}</h2>
     <div class="card shadow-lg border-0 mx-auto" style="max-width: 800px;">
         <div class="card-body text-top">
             <h5><strong>Проект:</strong> {{ project.db_project }}</h5>
@@ -31,9 +31,13 @@
                     <p class="text-muted">В данной схеме таблиц не найдено.</p>
                 {% endif %}
             {% endif %}
-            <div class="d-flex justify-content-start mt-3">
-                <a href="{% url 'database_schemas' project.pk %}" class="btn btn-secondary mt-3">
+
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'database_schemas' project.pk %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <a href="{% url 'create_table' project.pk schema_name %}" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Создать таблицу
                 </a>
             </div>
         </div>

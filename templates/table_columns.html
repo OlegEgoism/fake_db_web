@@ -41,14 +41,35 @@
                     <p class="text-muted">В данной таблице колонок не найдено.</p>
                 {% endif %}
             {% endif %}
-            <div class="d-flex justify-content-between mt-3">
-                <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary mt-3"> <i class="bi bi-arrow-left"></i> Назад </a>
-                <form method="post" onsubmit="return confirm('Вы уверены, что хотите удалить все данные из таблицы?');">
-                    {% csrf_token %}
-                    <button type="submit" name="clear_table" class="btn btn-danger mt-3"><i class="bi bi-trash"></i> Очистить таблицу</button>
-                </form>
-                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success mt-3"> <i class="bi bi-database-add"></i> Перейти в таблицу </a>
-            </div>
+
+        
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+    <!-- Кнопка "Назад" -->
+    <a href="{% url 'schema_tables' project.pk schema_name %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Назад
+    </a>
+
+    <!-- Форма очистки таблицы -->
+    <form method="post" onsubmit="return confirm('Вы уверены, что хотите удалить все данные из таблицы?');">
+        {% csrf_token %}
+        <button type="submit" name="clear_table" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Очистить таблицу
+        </button>
+    </form>
+
+    <!-- Кнопка удаления таблицы -->
+    <a href="{% url 'delete_table' project.pk schema_name table_name %}" class="btn btn-danger"
+       onclick="return confirm('Вы уверены, что хотите удалить таблицу {{ table_name }}? Это действие нельзя отменить!');">
+        <i class="bi bi-x-circle"></i> Удалить таблицу
+    </a>
+
+    <!-- Кнопка "Перейти в таблицу" -->
+    <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-success">
+        <i class="bi bi-database-add"></i> Перейти в таблицу
+    </a>
+</div>
+
+        
 
         </div>
     </div>
