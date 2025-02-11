@@ -54,11 +54,15 @@ def about_us(request):
 def profile(request):
     """Страница профиля пользователя"""
     info = Info.objects.first()
+    search_query = request.GET.get("search", "").strip()
     user_databases = DataBaseUser.objects.filter(user=request.user)
+    if search_query:
+        user_databases = user_databases.filter(db_project__icontains=search_query)
     return render(request, template_name='profile.html', context={
         'info': info,
         'user': request.user,
-        'user_databases': user_databases
+        'user_databases': user_databases,
+        'search_query': search_query
     })
 
 

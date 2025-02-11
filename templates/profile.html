@@ -36,16 +36,35 @@
             </div>
         </div>
         <hr>
+
         <div class="d-flex justify-content-between mt-3">
             <a href="{% url 'my_projects' %}" class="btn btn-success"> <i class="bi bi-list-ul"></i> Мои проекты </a>
             <a href="{% url 'edit_profile' %}" class="btn btn-success"> <i class="bi bi-pencil-square"></i> Редактировать профиль </a>
             <a href="{% url 'password_reset' %}" class="btn btn-success"> <i class="bi bi-lock-fill"></i> Сброс пароля </a>
             <a href="{% url 'request_account_deletion' %}" class="btn btn-danger"> <i class="bi bi-trash"></i> Удалить аккаунт </a>
         </div>
+
         <hr>
-        <div class="mb-3">
-            <h5 class="mb-0">Список проектов</h5>
+
+        <div class="mb-3 text-center">
+            <h3 class="mb-0">Список проектов</h3>
+            <form method="get" class="d-flex gap-2 mt-2">
+                <input type="text" name="search" id="searchInput" class="form-control flex-grow-1" placeholder="Поиск по названию проекта" value="{{ request.GET.search }}">
+                <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
+                    <i class="bi bi-x-circle"></i>
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
         </div>
+
+
+        {% if search_query %}
+            <div class="alert alert-info text-center">
+                Результаты поиска по запросу: <strong>{{ search_query }}</strong>
+            </div>
+        {% endif %}
 
         {% if user_databases %}
             <ul class="list-group">
@@ -68,6 +87,29 @@
                 <a href="{% url 'create_project' %}" class="btn btn-success mt-2"> <i class="bi bi-plus-lg"></i> Создать проект </a>
             </div>
         {% endif %}
-
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let searchInput = document.getElementById("searchInput");
+            let clearButton = document.getElementById("clearSearch");
+
+            // Показываем кнопку очистки, если есть текст в поле поиска
+            function toggleClearButton() {
+                clearButton.style.display = searchInput.value.length > 0 ? "inline-block" : "none";
+            }
+
+            // Очистка поиска
+            clearButton.addEventListener("click", function () {
+                searchInput.value = "";
+                document.querySelector("form").submit(); // Отправляем форму после очистки
+            });
+
+            // Проверяем состояние при загрузке страницы
+            toggleClearButton();
+
+            // Отслеживаем ввод текста
+            searchInput.addEventListener("input", toggleClearButton);
+        });
+    </script>
 {% endblock %}

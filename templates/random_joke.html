@@ -25,9 +25,14 @@
             {% if jokes %}
                 <h4 class="mt-3"><i class="bi bi-chat-left-quote"></i> {{ jokes }}</h4>
             {% endif %}
+            
+            <!-- Кнопка "Назад" слева -->
+            <div class="d-flex justify-content-start mt-3">
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+            </div>
         </div>
     </div>
-    <a href="{% url 'home' %}" class="btn btn-secondary mt-3">
-        <i class="bi bi-arrow-left"></i> Назад
-    </a>
+
 {% endblock %}
