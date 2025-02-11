@@ -3,7 +3,6 @@ import random
 import psycopg2
 from PIL import Image
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
@@ -24,12 +23,14 @@ from django.contrib.auth import logout
 from .models import Info, DataBaseUser, AppSettings, DeletionConfirmation
 from django.contrib.auth import get_user_model
 import pyjokes
+import re
+from django.contrib.auth.decorators import login_required
+from psycopg2 import sql
+import pytesseract
+
 
 User = get_user_model()
-
-import pytesseract
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
-
 
 
 def home(request):
@@ -48,7 +49,7 @@ def about_us(request):
     })
 
 
-# TODO
+# TODO Пользователь
 @login_required
 def profile(request):
     """Страница профиля пользователя"""
@@ -178,7 +179,7 @@ def logout_view(request):
     return redirect('home')
 
 
-# TODO
+# TODO База данных
 @login_required
 def database_detail(request, pk):
     """Страница информации о конкретной базе данных пользователя"""
@@ -344,12 +345,6 @@ def schema_tables(request, pk, schema_name):
         'error_message': error_message
     })
 
-import re
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from psycopg2 import sql
-
 
 @login_required
 def table_columns(request, pk, schema_name, table_name):
@@ -416,10 +411,6 @@ def table_columns(request, pk, schema_name, table_name):
         "record_count": record_count,
         "error_message": error_message
     })
-
-
-
-
 
 
 @login_required
@@ -541,6 +532,7 @@ def generate_fake_data(request, pk, schema_name, table_name):
 @login_required
 def view_table_data(request, pk, schema_name, table_name):
     """Просмотр данных из таблицы с пагинацией"""
+    info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     connection, error_message = get_db_connection(project)
     view_table_db = AppSettings.objects.first()
@@ -562,11 +554,9 @@ def view_table_data(request, pk, schema_name, table_name):
     paginator = Paginator(rows, page_size)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
-    # Количество записей на текущей странице
     records_on_page = len(page_obj.object_list)
-
     return render(request, template_name='view_table_data.html', context={
+        'info': info,
         'project': project,
         'schema_name': schema_name,
         'table_name': table_name,
@@ -577,7 +567,96 @@ def view_table_data(request, pk, schema_name, table_name):
     })
 
 
-# TODO
+@login_required
+def create_table(request, pk, schema_name):
+    """Создание таблицы в указанной схеме базы данных"""
+    info = Info.objects.first()
+    project = get_object_or_404(DataBaseUser, pk=pk)
+    error_message = None
+    if request.method == "POST":
+        table_name = request.POST.get("table_name")
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", table_name):
+            messages.error(request, "Название таблицы может содержать только буквы, цифры и '_', но не начинаться с цифры.")
+            return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
+        column_names = request.POST.getlist("column_name[]")
+        column_types = request.POST.getlist("column_type[]")
+        if not table_name or not column_names:
+            messages.error(request, "Введите название таблицы и хотя бы один столбец.")
+            return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
+        connection, error_message = get_db_connection(project)
+        if connection:
+            try:
+                with connection.cursor() as cursor:
+                    check_table_query = sql.SQL("""
+                        SELECT EXISTS (
+                            SELECT 1 FROM information_schema.tables 
+                            WHERE table_schema = %s AND table_name = %s
+                        );
+                    """)
+                    cursor.execute(check_table_query, (schema_name, table_name))
+                    table_exists = cursor.fetchone()[0]
+                    if table_exists:
+                        messages.error(request, f"Таблица '{table_name}' уже существует в схеме '{schema_name}'.")
+                        return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
+                    columns_sql = ", ".join([f'"{name}" {type}' for name, type in zip(column_names, column_types)])
+                    create_table_sql = sql.SQL(
+                        'CREATE TABLE {}.{} (id SERIAL PRIMARY KEY, {});'
+                    ).format(
+                        sql.Identifier(schema_name),
+                        sql.Identifier(table_name),
+                        sql.SQL(columns_sql)
+                    )
+                    cursor.execute(create_table_sql)
+                    connection.commit()
+                messages.success(request, f"Таблица '{table_name}' успешно создана в схеме '{schema_name}'.")
+                return redirect("schema_tables", pk=pk, schema_name=schema_name)
+            except Exception as e:
+                error_message = f"Ошибка создания таблицы: {str(e)}"
+            finally:
+                connection.close()
+    return render(request, template_name="create_table.html", context={
+        'info': info,
+        "project": project,
+        "schema_name": schema_name,
+        "error_message": error_message
+    })
+
+
+@login_required
+def delete_table(request, pk, schema_name, table_name):
+    """Удаляет указанную таблицу из схемы"""
+    project = get_object_or_404(DataBaseUser, pk=pk)
+    connection, error_message = get_db_connection(project)
+    if connection:
+        try:
+            with connection.cursor() as cursor:
+                # Проверяем, существует ли таблица перед удалением
+                check_table_query = sql.SQL("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = %s AND table_name = %s
+                    );
+                """)
+                cursor.execute(check_table_query, (schema_name, table_name))
+                table_exists = cursor.fetchone()[0]
+                if not table_exists:
+                    messages.error(request, f"Таблица '{table_name}' в схеме '{schema_name}' не существует!")
+                    return redirect("schema_tables", pk=pk, schema_name=schema_name)
+                delete_query = sql.SQL('DROP TABLE {}.{} CASCADE;').format(
+                    sql.Identifier(schema_name),
+                    sql.Identifier(table_name)
+                )
+                cursor.execute(delete_query)
+                connection.commit()
+                messages.success(request, f"Таблица '{table_name}' успешно удалена!")
+        except Exception as e:
+            messages.error(request, f"Ошибка при удалении таблицы: {str(e)}")
+        finally:
+            connection.close()
+    return redirect("schema_tables", pk=pk, schema_name=schema_name)
+
+
+# TODO Создание CSV
 def generate_csv(request):
     """Создание файла CSV"""
     info = Info.objects.first()
@@ -599,7 +678,7 @@ def generate_csv(request):
     })
 
 
-# TODO
+# TODO Шутки
 def random_joke(request):
     """Генерация случайной шутки с выбором тематики"""
     info = Info.objects.first()
@@ -617,7 +696,7 @@ def random_joke(request):
     })
 
 
-# TODO
+# TODO Распознавание
 def recognize_text(request):
     """Распознавание текста"""
     recognized_text = None
@@ -636,115 +715,10 @@ def recognize_text(request):
         'recognized_text': recognized_text
     })
 
+
 def download_text(request):
     """Скачивание распознанного текста"""
     recognized_text = request.session.get('recognized_text', '')  # Получаем текст из сессии
     response = HttpResponse(recognized_text, content_type="text/plain; charset=utf-8")
     response['Content-Disposition'] = 'attachment; filename="recognized_text.txt"'
     return response
-
-
-
-
-
-@login_required
-def create_table(request, pk, schema_name):
-    """Создание таблицы в указанной схеме базы данных"""
-    project = get_object_or_404(DataBaseUser, pk=pk)
-    error_message = None
-
-    if request.method == "POST":
-        table_name = request.POST.get("table_name")
-
-        # Проверка имени таблицы (разрешены только буквы, цифры и '_', без пробелов и дефисов)
-        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", table_name):
-            messages.error(request, "Название таблицы может содержать только буквы, цифры и '_', но не начинаться с цифры.")
-            return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
-
-        column_names = request.POST.getlist("column_name[]")
-        column_types = request.POST.getlist("column_type[]")
-
-        if not table_name or not column_names:
-            messages.error(request, "Введите название таблицы и хотя бы один столбец.")
-            return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
-
-        connection, error_message = get_db_connection(project)
-        if connection:
-            try:
-                with connection.cursor() as cursor:
-                    # Проверяем, существует ли таблица
-                    check_table_query = sql.SQL("""
-                        SELECT EXISTS (
-                            SELECT 1 FROM information_schema.tables 
-                            WHERE table_schema = %s AND table_name = %s
-                        );
-                    """)
-                    cursor.execute(check_table_query, (schema_name, table_name))
-                    table_exists = cursor.fetchone()[0]
-
-                    if table_exists:
-                        messages.error(request, f"Таблица '{table_name}' уже существует в схеме '{schema_name}'.")
-                        return render(request, "create_table.html", {"project": project, "schema_name": schema_name})
-
-                    # Создаём таблицу
-                    columns_sql = ", ".join([f'"{name}" {type}' for name, type in zip(column_names, column_types)])
-                    create_table_sql = sql.SQL(
-                        'CREATE TABLE {}.{} (id SERIAL PRIMARY KEY, {});'
-                    ).format(
-                        sql.Identifier(schema_name),
-                        sql.Identifier(table_name),
-                        sql.SQL(columns_sql)
-                    )
-
-                    cursor.execute(create_table_sql)
-                    connection.commit()
-
-                messages.success(request, f"Таблица '{table_name}' успешно создана в схеме '{schema_name}'.")
-                return redirect("schema_tables", pk=pk, schema_name=schema_name)
-            except Exception as e:
-                error_message = f"Ошибка создания таблицы: {str(e)}"
-            finally:
-                connection.close()
-
-    return render(request, "create_table.html", {"project": project, "schema_name": schema_name, "error_message": error_message})
-
-
-
-@login_required
-def delete_table(request, pk, schema_name, table_name):
-    """Удаляет указанную таблицу из схемы"""
-    project = get_object_or_404(DataBaseUser, pk=pk)
-    connection, error_message = get_db_connection(project)
-
-    if connection:
-        try:
-            with connection.cursor() as cursor:
-                # Проверяем, существует ли таблица перед удалением
-                check_table_query = sql.SQL("""
-                    SELECT EXISTS (
-                        SELECT 1 FROM information_schema.tables 
-                        WHERE table_schema = %s AND table_name = %s
-                    );
-                """)
-                cursor.execute(check_table_query, (schema_name, table_name))
-                table_exists = cursor.fetchone()[0]
-
-                if not table_exists:
-                    messages.error(request, f"Таблица '{table_name}' в схеме '{schema_name}' не существует!")
-                    return redirect("schema_tables", pk=pk, schema_name=schema_name)
-
-                # Удаление таблицы
-                delete_query = sql.SQL('DROP TABLE {}.{} CASCADE;').format(
-                    sql.Identifier(schema_name),
-                    sql.Identifier(table_name)
-                )
-                cursor.execute(delete_query)
-                connection.commit()
-
-                messages.success(request, f"Таблица '{table_name}' успешно удалена!")
-        except Exception as e:
-            messages.error(request, f"Ошибка при удалении таблицы: {str(e)}")
-        finally:
-            connection.close()
-
-    return redirect("schema_tables", pk=pk, schema_name=schema_name)
