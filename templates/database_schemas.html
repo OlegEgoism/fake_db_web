@@ -27,9 +27,13 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <div class="d-flex justify-content-start mt-3">
-                <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-secondary mt-3"> <i class="bi bi-arrow-left"></i> Назад</a>
-
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'connect_to_database' project.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
+                <a href="{% url 'create_schema' project.pk %}" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Создать схему
+                </a>
             </div>
         </div>
     </div>

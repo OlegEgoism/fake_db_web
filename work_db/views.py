@@ -322,6 +322,59 @@ def database_schemas(request, pk):
 
 
 @login_required
+def create_schema(request, pk):
+    """Создаёт новую схему в базе данных"""
+    project = get_object_or_404(DataBaseUser, pk=pk)
+    error_message = None
+
+    if request.method == "POST":
+        schema_name = request.POST.get("schema_name").strip()
+
+        # Проверка имени схемы (только буквы, цифры и _)
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", schema_name):
+            messages.error(request, "Название схемы может содержать только буквы, цифры и '_', но не начинаться с цифры.")
+            return redirect("create_schema", pk=pk)
+
+        connection, error_message = get_db_connection(project)
+        if connection:
+            try:
+                with connection.cursor() as cursor:
+                    # Проверяем, существует ли схема
+                    check_schema_query = sql.SQL("""
+                        SELECT EXISTS (
+                            SELECT 1 FROM information_schema.schemata 
+                            WHERE schema_name = %s
+                        );
+                    """)
+                    cursor.execute(check_schema_query, (schema_name,))
+                    schema_exists = cursor.fetchone()[0]
+
+                    if schema_exists:
+                        messages.error(request, f"Схема '{schema_name}' уже существует!")
+                        return redirect("create_schema", pk=pk)
+
+                    # Создаём схему
+                    create_schema_query = sql.SQL("CREATE SCHEMA {};").format(
+                        sql.Identifier(schema_name)
+                    )
+                    cursor.execute(create_schema_query)
+                    connection.commit()
+
+                messages.success(request, f"Схема '{schema_name}' успешно создана!")
+                return redirect("database_schemas", pk=pk)
+            except Exception as e:
+                error_message = f"Ошибка создания схемы: {str(e)}"
+            finally:
+                connection.close()
+
+    return render(request, "create_schema.html", {"project": project, "error_message": error_message})
+
+
+
+
+
+
+@login_required
 def schema_tables(request, pk, schema_name):
     """Получает список таблиц в схеме."""
     info = Info.objects.first()

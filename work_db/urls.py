@@ -34,7 +34,7 @@ from work_db.views import (
     download_text,
 
     create_table,
-    delete_table,
+    delete_table, create_schema,
 )
 
 urlpatterns = [
@@ -66,6 +66,10 @@ urlpatterns = [
     path('my_projects/', my_projects, name='my_projects'),
     path('connect/<int:pk>/', connect_to_database, name='connect_to_database'),
     path('schemas/<int:pk>/', database_schemas, name='database_schemas'),
+
+    path('schemas/<int:pk>/create/', create_schema, name='create_schema'),
+
+
     path('schemas/<int:pk>/<str:schema_name>/new_table/', create_table, name='create_table'),
     path('schemas/<int:pk>/<str:schema_name>/<str:table_name>/delete/', delete_table, name='delete_table'),
     path('schemas/<int:pk>/<str:schema_name>/', schema_tables, name='schema_tables'),
