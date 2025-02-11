@@ -8,6 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login
@@ -27,7 +28,6 @@ import re
 from django.contrib.auth.decorators import login_required
 from psycopg2 import sql
 import pytesseract
-
 
 User = get_user_model()
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -270,12 +270,17 @@ def create_project(request):
 
 @login_required
 def my_projects(request):
-    """Мои проекты базы данных"""
+    """Мои проекты базы данных с поиском"""
     info = Info.objects.first()
-    projects = DataBaseUser.objects.filter(user=request.user).order_by('db_date_create')
-    return render(request, template_name='my_projects.html', context={
-        'info': info,
-        'projects': projects
+    search_query = request.GET.get("search", "").strip()
+    projects = DataBaseUser.objects.filter(user=request.user)
+    if search_query:
+        projects = projects.filter(Q(db_project__icontains=search_query))
+    projects = projects.order_by("db_date_create")
+    return render(request, template_name="my_projects.html", context={
+        "info": info,
+        "projects": projects,
+        "search_query": search_query
     })
 
 
@@ -368,10 +373,6 @@ def create_schema(request, pk):
                 connection.close()
 
     return render(request, "create_schema.html", {"project": project, "error_message": error_message})
-
-
-
-
 
 
 @login_required
