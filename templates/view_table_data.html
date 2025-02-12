@@ -56,8 +56,8 @@
             </div>
 
             <!-- Пагинация -->
-            <nav>
-                <ul class="pagination justify-content-center">
+            <nav class="mt-3">
+                <ul class="pagination justify-content-center align-items-center">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
                             <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo; Первая</a>
@@ -67,8 +67,17 @@
                         </li>
                     {% endif %}
 
-                    <li class="page-item active">
-                        <span class="page-link">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                    <li class="page-item">
+                        <span class="page-link">Страница</span>
+                    </li>
+                    <li class="page-item">
+                        <input type="number" id="pageNumberInput" class="form-control text-center" style="max-width: 80px;" min="1" max="{{ page_obj.paginator.num_pages }}" value="{{ page_obj.number }}">
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link">из {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    <li class="page-item">
+                        <button id="goToPageButton" class="btn btn-primary">Перейти</button>
                     </li>
 
                     {% if page_obj.has_next %}
@@ -90,10 +99,13 @@
         </div>
     </div>
 
+    <!-- JS для управления поиском и пагинацией -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {
         let searchInput = document.getElementById("searchInput");
         let clearButton = document.getElementById("clearSearch");
+        let pageNumberInput = document.getElementById("pageNumberInput");
+        let goToPageButton = document.getElementById("goToPageButton");
 
         function toggleClearButton() {
             clearButton.style.display = searchInput.value.length > 0 ? "inline-block" : "none";
@@ -106,6 +118,27 @@
 
         toggleClearButton();
         searchInput.addEventListener("input", toggleClearButton);
+
+        // Обработчик кнопки "Перейти"
+        goToPageButton.addEventListener("click", function () {
+            let page = pageNumberInput.value;
+            let maxPage = parseInt(pageNumberInput.max);
+            if (page < 1 || page > maxPage) {
+                alert(`Введите номер страницы от 1 до ${maxPage}`);
+                return;
+            }
+            let urlParams = new URLSearchParams(window.location.search);
+            urlParams.set("page", page);
+            window.location.search = urlParams.toString();
+        });
+
+        // Позволяет переходить по нажатию Enter
+        pageNumberInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                goToPageButton.click();
+                event.preventDefault();
+            }
+        });
     });
     </script>
 
