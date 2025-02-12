@@ -197,7 +197,8 @@ def database_detail(request, pk):
 def database_edit(request, pk):
     """Редактирование информации о базе данных и проверка подключения"""
     info = Info.objects.first()
-    connect_timeout = AppSettings.objects.first().connect_timeout_db
+    app_settings = AppSettings.objects.first()
+    connect_timeout = app_settings.connect_timeout_db if app_settings else 5
     database = get_object_or_404(DataBaseUser, pk=pk)
     if request.method == 'POST':
         form = DataBaseUserForm(request.POST, instance=database)
@@ -249,7 +250,8 @@ def database_delete(request, pk):
 def create_project(request):
     """Создать проект базы данных"""
     info = Info.objects.first()
-    limit_create_db = AppSettings.objects.first().limit_create_db
+    app_settings = AppSettings.objects.first()
+    limit_create_db = app_settings.limit_create_db if app_settings else 3
     user = request.user
     if not user.pay_plan:
         user_projects_count = DataBaseUser.objects.filter(user=user).count()
@@ -274,17 +276,22 @@ def create_project(request):
 
 @login_required
 def my_projects(request):
-    """Мои проекты базы данных с поиском"""
+    """Мои проекты базы данных с поиском и пагинацией"""
     info = Info.objects.first()
     search_query = request.GET.get("search", "").strip()
+    paginator_projects = AppSettings.objects.first()
     projects = DataBaseUser.objects.filter(user=request.user)
     if search_query:
-        projects = projects.filter(Q(db_project__icontains=search_query))
+        projects = projects.filter(Q(db_project__icontains=search_query) | Q(db_name__icontains=search_query))
     projects = projects.order_by("db_date_create")
+    page_size = paginator_projects.paginator_projects if paginator_projects else 4
+    paginator = Paginator(projects, page_size)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     return render(request, template_name="my_projects.html", context={
         "info": info,
-        "projects": projects,
-        "search_query": search_query
+        "projects": page_obj,
+        "search_query": search_query,
     })
 
 
@@ -645,7 +652,7 @@ def view_table_data(request, pk, schema_name, table_name):
     except (EmptyPage, PageNotAnInteger):
         page_obj = paginator.page(1)
 
-    return render(request, 'view_table_data.html', {
+    return render(request, template_name='view_table_data.html', context={
         'info': info,
         'project': project,
         'schema_name': schema_name,

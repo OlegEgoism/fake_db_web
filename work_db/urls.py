@@ -34,7 +34,8 @@ from work_db.views import (
     download_text,
 
     create_table,
-    delete_table, create_schema,
+    delete_table,
+    create_schema,
 )
 
 urlpatterns = [
