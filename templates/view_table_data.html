@@ -15,6 +15,25 @@
             <h5><strong>Количество записей на странице:</strong> {{ records_on_page }} шт.</h5>
             <hr>
 
+            <!-- Поисковая форма -->
+            <div class="mb-3 text-center">
+                <form method="get" class="d-flex gap-2 mx-auto justify-content-center align-items-center w-100">
+                    <input type="text" name="search" id="searchInput" class="form-control flex-grow-1" placeholder="Поиск по данным таблицы" value="{{ request.GET.search }}">
+                    <button type="button" id="clearSearch" class="btn btn-outline-secondary" style="display: none;">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            {% if search_query %}
+                <div class="alert alert-info text-center">
+                    Результаты поиска по запросу: <strong>{{ search_query }}</strong>
+                </div>
+            {% endif %}
+
             <div class="table-responsive">
                 <table class="table table-striped text-start">
                     <thead class="table-dark">
@@ -25,7 +44,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for row in page_obj %}
+                    {% for row in rows %}
                         <tr>
                             {% for value in row %}
                                 <td>{{ value }}</td>
@@ -41,10 +60,10 @@
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page=1">&laquo; Первая</a>
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo; Первая</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Назад</a>
                         </li>
                     {% endif %}
 
@@ -54,17 +73,40 @@
 
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Вперёд</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Последняя &raquo;</a>
                         </li>
                     {% endif %}
                 </ul>
             </nav>
+
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-secondary mt-3"> <i class="bi bi-arrow-left"></i> Назад </a>
+                <a href="{% url 'generate_fake_data' project.pk schema_name table_name %}" class="btn btn-secondary mt-3">
+                    <i class="bi bi-arrow-left"></i> Назад
+                </a>
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let searchInput = document.getElementById("searchInput");
+        let clearButton = document.getElementById("clearSearch");
+
+        function toggleClearButton() {
+            clearButton.style.display = searchInput.value.length > 0 ? "inline-block" : "none";
+        }
+
+        clearButton.addEventListener("click", function () {
+            searchInput.value = "";
+            document.querySelector("form").submit();
+        });
+
+        toggleClearButton();
+        searchInput.addEventListener("input", toggleClearButton);
+    });
+    </script>
+
 {% endblock %}

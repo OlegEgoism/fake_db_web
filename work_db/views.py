@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -589,39 +589,73 @@ def generate_fake_data(request, pk, schema_name, table_name):
 
 @login_required
 def view_table_data(request, pk, schema_name, table_name):
-    """Просмотр данных из таблицы с пагинацией"""
+    """Просмотр данных из таблицы с подгрузкой текущей страницы и поиском"""
     info = Info.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     connection, error_message = get_db_connection(project)
     view_table_db = AppSettings.objects.first()
     if error_message:
-        return render(request, template_name='error_page.html', context={'error_message': error_message})
+        return render(request, 'error_page.html', {'error_message': error_message})
+
     cursor = connection.cursor()
+
+    # Получаем список колонок
     cursor.execute(f"""
         SELECT column_name FROM information_schema.columns
         WHERE table_schema = %s AND table_name = %s;
     """, (schema_name, table_name))
     columns = [col[0] for col in cursor.fetchall()]
+
+    # Получаем общее количество записей
     cursor.execute(f'SELECT COUNT(*) FROM "{schema_name}"."{table_name}";')
     record_count = cursor.fetchone()[0]
-    cursor.execute(f'SELECT * FROM "{schema_name}"."{table_name}";')
+
+    # Параметры пагинации
+    page_size = view_table_db.view_table_db if view_table_db else 100
+    page_number = request.GET.get('page', 1)
+
+    try:
+        page_number = int(page_number)
+    except ValueError:
+        page_number = 1
+
+    offset = (page_number - 1) * page_size  # Вычисляем OFFSET
+
+    # Обрабатываем поисковый запрос
+    search_query = request.GET.get('search', '').strip()
+    query_params = []
+
+    if search_query:
+        search_conditions = " OR ".join([f'"{col}"::text ILIKE %s' for col in columns])
+        sql_query = f'SELECT * FROM "{schema_name}"."{table_name}" WHERE {search_conditions} LIMIT {page_size} OFFSET {offset};'
+        query_params = [f"%{search_query}%"] * len(columns)
+    else:
+        sql_query = f'SELECT * FROM "{schema_name}"."{table_name}" LIMIT {page_size} OFFSET {offset};'
+
+    cursor.execute(sql_query, query_params)
     rows = cursor.fetchall()
     cursor.close()
     connection.close()
-    page_size = view_table_db.view_table_db if view_table_db else 50
-    paginator = Paginator(rows, page_size)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    records_on_page = len(page_obj.object_list)
-    return render(request, template_name='view_table_data.html', context={
+
+    # Создаём объект пагинации
+    paginator = Paginator(range(record_count), page_size)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.page(1)
+
+    return render(request, 'view_table_data.html', {
         'info': info,
         'project': project,
         'schema_name': schema_name,
         'table_name': table_name,
         'columns': columns,
-        'page_obj': page_obj,
+        'page_obj': page_obj,  # Пагинация
+        'rows': rows,  # Только текущие данные
         'record_count': record_count,
-        'records_on_page': records_on_page
+        'records_on_page': len(rows),
+        'search_query': search_query,  # Передаём в шаблон
     })
 
 
