@@ -618,7 +618,7 @@ def view_table_data(request, pk, schema_name, table_name):
     record_count = cursor.fetchone()[0]
 
     # Параметры пагинации
-    page_size = view_table_db.view_table_db if view_table_db else 100
+    page_size = view_table_db.view_table_db if view_table_db else 50
     page_number = request.GET.get('page', 1)
 
     try:
