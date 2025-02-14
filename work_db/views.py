@@ -482,6 +482,7 @@ def table_columns(request, pk, schema_name, table_name):
 def generate_fake_data(request, pk, schema_name, table_name):
     """Генерация случайных данных для указанной таблицы"""
     info = Info.objects.first()
+    app_settings = AppSettings.objects.first()
     project = get_object_or_404(DataBaseUser, pk=pk)
     user = project.user
     fake = Faker('ru_RU')
@@ -524,7 +525,8 @@ def generate_fake_data(request, pk, schema_name, table_name):
                 'table_name': table_name,
                 'inserted_rows': inserted_rows,
                 'record_count': record_count,
-                'error_message': error_message
+                'error_message': error_message,
+                'limit_generate_request': app_settings.limit_generate_request
             })
 
         try:
@@ -591,6 +593,7 @@ def generate_fake_data(request, pk, schema_name, table_name):
         'inserted_rows': inserted_rows,
         'record_count': record_count,
         'error_message': error_message,
+        'limit_generate_request': app_settings.limit_generate_request
     })
 
 

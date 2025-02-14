@@ -33,8 +33,8 @@ class DeletionConfirmationAdmin(admin.ModelAdmin):
 @admin.register(AppSettings)
 class AppSettingsAdmin(admin.ModelAdmin):
     """Информация на сайте"""
-    list_display = '__str__', 'limit_create_db', 'connect_timeout_db', 'view_table_db', 'paginator_projects',
-    list_editable = 'limit_create_db', 'connect_timeout_db', 'view_table_db', 'paginator_projects',
+    list_display = '__str__', 'limit_create_db', 'connect_timeout_db', 'view_table_db', 'paginator_projects', 'limit_generate_request',
+    list_editable = 'limit_create_db', 'connect_timeout_db', 'view_table_db', 'paginator_projects', 'limit_generate_request',
 
     def has_add_permission(self, request):
         """Запрещает создание новой записи, если уже существует одна запись"""

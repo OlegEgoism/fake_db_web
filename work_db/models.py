@@ -8,6 +8,7 @@ class AppSettings(models.Model):
     connect_timeout_db = models.IntegerField(verbose_name="Время проверки соединения в БД", default=5)
     view_table_db = models.IntegerField(verbose_name="Количество отображаемых данных в таблице БД", default=50)
     paginator_projects = models.IntegerField(verbose_name="Количество отображаемых проектов на странице", default=4)
+    limit_generate_request = models.IntegerField(verbose_name="Лимит генерации данных за запрос", default=100000)
 
     def __str__(self):
         return f'Настройки проекта'
