@@ -84,9 +84,11 @@
         {% else %}
             <div class="d-flex justify-content-center align-items-center flex-column mt-4">
                 <p class="text-muted text-center">У вас нет созданных проектов</p>
-                <a href="{% url 'create_project' %}" class="btn btn-success mt-2"> <i class="bi bi-plus-lg"></i> Создать проект </a>
             </div>
         {% endif %}
+        <div class="d-flex justify-content-center align-items-center flex-column mt-4">
+            <a href="{% url 'create_project' %}" class="btn btn-success mt-2"> <i class="bi bi-plus-lg"></i> Создать проект </a>
+        </div>
     </div>
 
     <script>
